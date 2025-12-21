@@ -1,0 +1,143 @@
+ 2025-12-21 05:20:51: Logging to stdout enabled
+ 2025-12-21 05:20:51: Initialising aMuleD 2.3.3 compiled with wxBase(MSW) v3.2.5 and Boost 1.86 (Snapshot: rev. g4e8f2b3+)
+ 2025-12-21 05:20:51: Checking if there is an instance already running...
+ 2025-12-21 05:20:51: No other instances are running.
+ 2025-12-21 05:20:51: Файл кредитов загружен, 79 клиентов известно
+ 2025-12-21 05:20:51: *** TCP socket (ECServer) listening on 0.0.0.0:4712
+ 2025-12-21 05:20:51: Created Server UDP-Socket at port 8092
+ 2025-12-21 05:20:51: ListenSocket: Ok.
+ 2025-12-21 05:20:51: Created Client UDP-Socket at port 8089
+!2025-12-21 05:20:54: Universal Plug and Play: UPnP Error: CUPnPControlPoint::AddPortMapping: WAN Service not detected.
+ 2025-12-21 05:20:54: Загружается файл 'server.met': O:\Work\Coding\Paradise_Lost_KAD\rep\amule-daemon-config\server.met
+!2025-12-21 05:20:54: В файле 'server.met' найдено 20 серверов
+!2025-12-21 05:20:54: Не найдено адресов списков серверов в 'addresses.dat'. Пожалуйста, введите правильные адреса чтобы авто-обновление работало.
+ 2025-12-21 05:20:54: Загружаются файлы из Y:\software\AI\ComfyUI-Easy-Install\snork_TMP
+ 2025-12-21 05:20:54: Загружается файл 1 из 1
+ 2025-12-21 05:20:54: Все файлы загружены.
+ 2025-12-21 05:20:54: Найден 1 частично закаченный файл
+ 2025-12-21 05:20:54: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\AfterDetailer
+ 2025-12-21 05:20:54: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\ApproxVAE
+ 2025-12-21 05:20:54: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\audio_encoders
+ 2025-12-21 05:20:54: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\bert-base-uncased
+ 2025-12-21 05:20:54: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\BSRGAN
+ 2025-12-21 05:20:54: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\checkpoints\Bjornulf_civitAI
+ 2025-12-21 05:20:54: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\checkpoints\From_L\.cache
+ 2025-12-21 05:20:54: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\checkpoints\From_U\.cache
+ 2025-12-21 05:20:54: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\clip
+ 2025-12-21 05:20:54: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\ClipVision
+ 2025-12-21 05:20:54: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\Codeformer
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\controlnet\From_U\Flux1
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\DeepDanbooru
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\diffusers
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\diffusion_models
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\diffusion_models\from_U\.cache
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\diffusion_models\from_U\.cache\huggingface\download\split_files
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\diffusion_models\from_U\ldsr
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\diffusion_models\gguf\.cache
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\DiffusionModels
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\embeddings
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\ESRGAN
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\GFPGAN
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\gligen
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\Hypernetwork
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\hypernetworks
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\insightface\models
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\IpAdapter
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\IpAdapters15
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\IpAdaptersXl
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\Karlo
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\latent_upscale_models
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LDSR
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-base\.git\lfs
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-base\.git\lfs\incomplete
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-base\.git\lfs\objects
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-base\.git\lfs\objects\03
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-base\.git\lfs\objects\b4
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-base\.git\lfs\tmp
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-base\.git\logs\refs
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-base\.git\logs\refs\remotes
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-base\.git\objects
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-base\.git\objects\info
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-base\.git\objects\pack
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-base\.git\refs
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-base\.git\refs\remotes
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-base\.git\refs\tags
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-Flux-Large\.cache
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LLM\Florence-2-large-PromptGen-v2.0\.cache
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\loras\.cache
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\loras\From_U\.cache
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\loras\From_U\QWEN_Edit\.cache
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\loras\From_U\QWEN_Edit\Texture\.cache
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\loras\From_U\ZiT\.cache
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\loras\QWEN_Edit\.cache
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\loras\QWEN_Edit\Try_On\.cache
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\loras\Новая папка
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\LyCORIS
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\nsfw_detector
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\onnx
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\photomaker
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\PromptExpansion
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\reactor
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\RealESRGAN
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\RMBG
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\RMBG\INSPYRENET\.cache
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\RMBG\RMBG-2.0\.cache
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\ScuNET
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\sonic
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\ssr
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\StableDiffusion
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\style_models
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\SVD
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\SwinIR
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\T2IAdapter
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\text_encoders
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\ultralytics
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\unet
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\vae
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\ComfyUI-Easy-Install\ComfyUI\models\vae_approx
+ 2025-12-21 05:20:55: Нет публикуемых файлов в директории: Y:\software\AI\ComfyUI-Easy-Install\snork_Incoming
+ 2025-12-21 05:20:55: Найдено 490 известных публикуемых файлов.
+!2025-12-21 05:20:56: веб-сервер работает с pid 37852
+ 2025-12-21 05:20:56: amuled: OnInit - запускаем таймер
+ 2025-12-21 05:20:56: Asio thread 2 started
+ 2025-12-21 05:20:56: Asio thread 1 started
+ 2025-12-21 05:20:56: Asio thread 3 started
+ 2025-12-21 05:20:56: Asio thread 4 started
+ 2025-12-21 05:20:56: Загружаю IP-фильтры 'ipfilter.dat' и 'ipfilter_static.dat'.
+ 2025-12-21 05:20:56: Загружено 0 IP-диапазонов из 'O:\Work\Coding\Paradise_Lost_KAD\rep\amule-daemon-config\ipfilter.dat'.
+ 2025-12-21 05:20:56: Загружено 0 IP-диапазонов из 'O:\Work\Coding\Paradise_Lost_KAD\rep\amule-daemon-config\ipfilter_static.dat'.
+ 2025-12-21 05:20:56: IP-фильтр готов
+!2025-12-21 05:20:56: Идет подключение
+ 2025-12-21 05:20:56: Установка соединения с eMule Security (45.82.80.155 - 45.82.80.155:5687) использую вуалирование протокола.
+ 2025-12-21 05:20:56: Считано 197 контактов Kad
+!2025-12-21 05:20:56: Kad запущена.
+ 2025-12-21 05:20:56: Принято новое внешнее соединение
+ 2025-12-21 05:20:56: Соединение с клиентом: aMuleweb 2.3.3
+ 2025-12-21 05:20:56: Доступ получен.
+ 2025-12-21 05:20:56: Подключен к eMule Security (45.82.80.155:5687)
+!2025-12-21 05:20:56: Kad остановлена.
+!2025-12-21 05:20:56: Подключен к Kad (за брандмауэром)
+ 2025-12-21 05:21:06: ПРЕДУПРЕЖДЕНИЕ: eMule Security (45.82.80.155:5687) - NG : You have a lowid. Please review your network config and/or your settings.
+!2025-12-21 05:21:06: Установлено соединение с: eMule Security
+!2025-12-21 05:21:06: Соединен с eMule Security LowID
+ 2025-12-21 05:21:06: Новый ID клиента 8000120
+!2025-12-21 05:21:06: ПРЕДУПРЕЖДЕНИЕ: вы получили Low-ID!
+ 2025-12-21 05:21:06: 	Скорее всего это из-за того, что вы находитесь за брандмауэром или маршрутизатором.
+ 2025-12-21 05:21:06: 	Для подробностей, обратитесь к http://wiki.amule.org
+ 2025-12-21 05:21:06: Сообщение сервера: server version 17.15 (lugdunum)
+ 2025-12-21 05:21:06: Сообщение сервера: Welcome to eMule Security! <> www.emule-security.org
+ 2025-12-21 05:21:06: Сообщение сервера: Download Safe Serverlist > http://www.emule-security.org/serverlist/
+ 2025-12-21 05:21:06: Сообщение сервера: IP-filter > http://www.emule-security.org/e107_plugins/faq/faq.php?0.cat.2.1
+ 2025-12-21 05:21:06: Сообщение сервера: nodes.dat > http://www.emule-security.org/e107_plugins/faq/faq.php?0.cat.6.6
+ 2025-12-21 05:21:06: Сообщение сервера: Ip-To-Country database> http://www.emule-security.org/e107_plugins/faq/faq.php?0.cat.7.10
+ 2025-12-21 05:21:06: Сообщение сервера: eMule MODs > http://www.emule-security.org/modb/
+ 2025-12-21 05:21:06: Сообщение сервера: VPN with port forwarding (for High ID) > https://bit.ly/4hpqBCI
+ 2025-12-21 05:21:06: Сообщение сервера: Disclaimer: This server is only indexing file-hashes, and no contains any files,
+ 2025-12-21 05:21:06: Сообщение сервера: not directly involved in the exchange of files between users of p2p-network.
+ 2025-12-21 05:21:06: Сообщение сервера: Administration of server is not responsible for the contents of files
+ 2025-12-21 05:21:06: Сообщение сервера: shared by connected to the server users. Please do not share
+ 2025-12-21 05:21:06: Сообщение сервера: copyrighted material, DRM protected media, viruses or other harmful files!
+!2025-12-21 05:21:09: HTTP download failed: SSL connect error
+!2025-12-21 05:21:09: Ошибка при загрузке файла контроля версии
+ 2025-12-21 05:21:09: 5:21:09: Error: File 'O:\Work\Coding\Paradise_Lost_KAD\rep\amule-daemon-config\last_version_check' couldn't be removed (error 0: Не удается найти указанный файл.)
+ 2025-12-21 05:22:57: Внешнее соединение закрыто.
