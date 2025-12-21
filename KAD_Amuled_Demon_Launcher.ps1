@@ -1,8 +1,8 @@
-# KAD amuled Demon Installer v1.2 by L'.L'.
-# Версия без uv в системе, прокси только для установки, быстрый старт
+# KAD amuled Demon Installer v1.3 by L'.L'.
+# Версия с логированием в лаунчере, без uv в системе
 
 function Show-WelcomeMessage {
-    Write-Host "KAD amuled Demon Installer v1.2 by L'.L'." -ForegroundColor Cyan
+    Write-Host "KAD amuled Demon Installer v1.3 by L'.L'." -ForegroundColor Cyan
     Write-Host ""
     Write-Host "██████████████████░░" -ForegroundColor Cyan
     Write-Host "██████████████████░░" -ForegroundColor Cyan
@@ -58,7 +58,6 @@ function Install-Uv {
 
     & "$venvPath\Scripts\python.exe" -m pip install --quiet uv
 
-    # Восстанавливаем прокси (на случай, если он был задан вне скрипта)
     $env:HTTP_PROXY = $old_http_proxy
     $env:HTTPS_PROXY = $old_https_proxy
 }
@@ -79,7 +78,6 @@ function Install-Dependencies {
 
     & "$venvPath\Scripts\uv.exe" pip install requests beautifulsoup4 lxml
 
-    # Очищаем прокси после установки — важно!
     $env:HTTP_PROXY = $old_http_proxy
     $env:HTTPS_PROXY = $old_https_proxy
 }
@@ -123,6 +121,47 @@ function Get-UserInput {
     }
 }
 
+# === Функция отслеживания лога ===
+function Watch-Log {
+    param([string]$LogPath)
+
+    Write-Host "[LOG] Ожидание создания лог-файла: $LogPath" -ForegroundColor DarkGray
+    while (!(Test-Path $LogPath)) {
+        Start-Sleep -Seconds 1
+    }
+    Write-Host "[LOG] Файл создан. Начинаю вывод в реальном времени..." -ForegroundColor DarkGray
+
+    Get-Content $LogPath -Encoding Default -Wait | ForEach-Object {
+        $line = $_
+
+        # Обработка "Сообщение сервера"
+        if ($line -match '^\s*[\d!][\d\-:\s]+: Сообщение сервера: (.+)$') {
+            $msg = $matches[1]
+            $timestampPart = $line -replace ': Сообщение сервера:.*', ''
+            Write-Host "[SERVER] ${timestampPart}: $msg" -ForegroundColor Cyan
+            return
+        }
+
+        # Определяем цвет по ключевым словам
+        if ($line -match '.*: Прием ') {
+            Write-Host "[LOG] $line" -ForegroundColor Yellow
+        }
+        elseif ($line -match '.*: Загрузка завершена:') {
+            Write-Host "[LOG] $line" -ForegroundColor Green
+        }
+        elseif ($line -match '.*: Ошибка') {
+            Write-Host "[LOG] $line" -ForegroundColor Red
+        }
+        elseif ($line -match '.*: ПРЕДУПРЕЖДЕНИЕ:') {
+            Write-Host "[LOG] $line" -ForegroundColor White
+        }
+        else {
+            # Все остальные строки — серым (DarkGray)
+            Write-Host "[LOG] $line" -ForegroundColor DarkGray
+        }
+    }
+}
+
 # === Основной блок ===
 try {
     Show-WelcomeMessage
@@ -131,14 +170,18 @@ try {
     $venvPath   = Join-Path $scriptPath ".venv"
     $daemonPath = Join-Path $scriptPath "amuled_daemon.py"
     $configPath = Join-Path $scriptPath "apply_amule_config.py"
+    $logPath    = Join-Path $scriptPath "amule-daemon-config\logfile"
 
     if (!(Test-Environment)) { exit 1 }
     Test-Venv -venvPath $venvPath
 
     # === БЫСТРЫЙ СТАРТ ===
     if (Test-Path $daemonPath) {
-        Write-Host "[SETUP] OK: Найден amuled_daemon.py — запуск в режиме быстрого старта..." -ForegroundColor Green
+        Write-Host "[SETUP] OK: Найден amuled_daemon.py — запуск демона..." -ForegroundColor Green
         & "$venvPath\Scripts\python.exe" $daemonPath
+
+        # Запуск отслеживания лога
+        Watch-Log -LogPath $logPath
         exit 0
     }
 
@@ -156,14 +199,16 @@ try {
     Write-Host "[SETUP] INFO: Запуск apply_amule_config.py..." -ForegroundColor Blue
     & "$venvPath\Scripts\python.exe" $configPath $user.videoPlayer $user.incomingDir $user.tempDir
 
-    Write-Host "`n[SETUP] OK: Установка завершена. Запуск amuled_daemon.py..." -ForegroundColor Green
+    Write-Host "`n[SETUP] OK: Установка завершена. Запуск демона..." -ForegroundColor Green
     if (Test-Path $daemonPath) {
         & "$venvPath\Scripts\python.exe" $daemonPath
     } else {
-        Write-Host "[SETUP] WARN: amuled_daemon.py не найден — возможно, архив не распаковал его." -ForegroundColor Yellow
+        Write-Host "[SETUP] WARN: amuled_daemon.py не найден!" -ForegroundColor Yellow
     }
 
-    Read-Host "Нажмите Enter для выхода"
+    # Отслеживание лога
+    Watch-Log -LogPath $logPath
+
 } catch {
     Write-Host "[SETUP] ERROR: $($_.Exception.Message)" -ForegroundColor Red
     Read-Host "Нажмите Enter для выхода"
