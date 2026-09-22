@@ -5,18 +5,18 @@ Kademlia P2P protocols in pure Python 3.12.  This module exposes the package
 version and top-level docstring.
 
 src/amuled_v2/__init__.py
-Version:     0.4.0
+Version:     0.4.1
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
 
-Patch Notes v0.4.0 (Soror L.'.L'.):
-  [+] Added AICH hashing, ED2K login builder, and async server TCP session.
+Patch Notes v0.4.1 (Soror L.'.L'.):
+  [*] Corrected ED2K TCP wire framing and completed live OP_IDCHANGE parsing.
 
 Patch Notes v0.1.0 (Soror L.'.L'.):
   [+] Package root with __version__ = "0.1.0".
   [+] Synopsis block and package docstring.
 """
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 __all__ = ["__version__"]

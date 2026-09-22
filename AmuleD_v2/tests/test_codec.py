@@ -5,11 +5,13 @@ and packed-payload behavior.  All tests are local, deterministic, and do not use
 the network.
 
 tests/test_codec.py
-Version:     0.2.0
+Version:     0.2.1
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
 
-Patch Notes v0.2.0 (Soror L.'.L'.):
+Patch Notes v0.2.1 (Soror L.'.L'.):
+  [*] Updated packet tests to the corrected wire order: protocol, length,
+      opcode; packet length includes the opcode byte.
   [*] Updated tags to the corrected identifier/value semantics.
   [*] Updated packed packets to compress payload only while preserving opcode.
   [+] Added malformed-packet, zlib-boundary, STR16 boundary, and trailing-byte
@@ -196,8 +198,9 @@ def test_truncated_tag_raises_without_success() -> None:
 def test_packet_header_layout_and_remainder() -> None:
     packet = Packet(protocol=EDONKEY, opcode=0x01, payload=b"payload")
     raw = encode_packet(packet)
-    assert raw[:2] == bytes((EDONKEY, 0x01))
-    assert raw[2:6] == struct.pack("<I", 7)
+    assert raw[0] == EDONKEY
+    assert raw[1:5] == struct.pack("<I", len(packet.payload) + 1)
+    assert raw[5] == 0x01
     assert raw[6:] == b"payload"
 
     decoded, remainder = decode_packet(raw + b"next")
@@ -218,8 +221,8 @@ def test_packed_packet_compresses_payload_only() -> None:
     original = Packet(protocol=EDONKEY, opcode=0x33, payload=b"repeated" * 128)
     packed_raw = pack_packet(original, compression_level=9)
     assert packed_raw[0] == PACKED
-    assert packed_raw[1] == 0x33
-    payload_size = struct.unpack_from("<I", packed_raw, 2)[0]
+    assert packed_raw[5] == 0x33
+    payload_size = struct.unpack_from("<I", packed_raw, 1)[0] - 1
     compressed_payload = packed_raw[6 : 6 + payload_size]
     assert zlib.decompress(compressed_payload) == original.payload
     assert len(compressed_payload) < len(original.payload)
@@ -235,7 +238,7 @@ def test_packed_kad_packet_preserves_kad_family() -> None:
     original = Packet(protocol=KAD, opcode=0x30, payload=b"kad payload" * 64)
     packed_raw = pack_packet(original, compression_level=9)
     assert packed_raw[0] == KADEMLIAPACKED
-    assert packed_raw[1] == 0x30
+    assert packed_raw[5] == 0x30
     decoded, _ = unpack_packet(packed_raw)
     assert decoded.protocol == KAD
     assert decoded.payload == original.payload
@@ -246,7 +249,7 @@ def test_pack_leaves_incompressible_payload_unpacked() -> None:
     original = Packet(protocol=EDONKEY, opcode=0x16, payload=payload)
     raw = pack_packet(original)
     assert raw[0] == EDONKEY
-    assert raw[1] == 0x16
+    assert raw[5] == 0x16
     decoded, _ = decode_packet(raw)
     assert decoded == original
 

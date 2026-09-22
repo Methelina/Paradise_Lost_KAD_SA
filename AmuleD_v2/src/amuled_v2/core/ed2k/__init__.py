@@ -30,6 +30,7 @@ from .constants import (
 from .server_client import (
     Ed2kServerClient,
     LoginResult,
+    ServerIdChange,
     ServerIdentity,
     ServerMessage,
     ServerSessionError,
@@ -59,6 +60,7 @@ __all__ = [
     "Ed2kServerClient",
     "LoginResult",
     "ServerIdentity",
+    "ServerIdChange",
     "ServerMessage",
     "ServerSessionError",
     "ServerStatus",

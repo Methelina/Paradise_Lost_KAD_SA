@@ -6,11 +6,14 @@ Packed packets preserve the original opcode, replace the protocol byte with the
 appropriate packed protocol identifier, and zlib-compress only the payload.
 
 src/amuled_v2/core/codec/packet.py
-Version:     0.2.0
+Version:     0.2.1
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
 
-Patch Notes v0.2.0 (Soror L.'.L'.):
+Patch Notes v0.2.1 (Soror L.'.L'.):
+  [*] Corrected ED2K wire header to protocol, UInt32 packet_length, opcode;
+      packet_length includes the opcode byte (`payload_size + 1`).
+  [*] Decode now validates length >= 1 and derives payload from packet_length.
   [*] Corrected packed-packet semantics: compression applies to the payload
       only; the original opcode remains in the packet header.
   [+] Added KAD packed protocol selection and bounded decompression.
@@ -70,13 +73,14 @@ class Packet:
 
 
 def _header_bytes(protocol: int, opcode: int, payload_size: int) -> bytes:
-    if payload_size > 0xFFFFFFFF:
-        raise PacketError("payload exceeds UINT32 packet size")
-    return bytes((protocol, opcode)) + struct.pack("<I", payload_size)
+    packet_length = payload_size + 1
+    if packet_length > 0xFFFFFFFF:
+        raise PacketError("packet exceeds UINT32 length")
+    return bytes((protocol,)) + struct.pack("<I", packet_length) + bytes((opcode,))
 
 
 def encode_packet(packet: Packet) -> bytes:
-    """Encode *packet* as a six-byte header plus its payload."""
+    """Encode *packet* in ED2K wire order: protocol, length, opcode, payload."""
     return _header_bytes(packet.protocol, packet.opcode, len(packet.payload)) + packet.payload
 
 
@@ -90,8 +94,11 @@ def decode_packet(data: bytes) -> Tuple[Packet, bytes]:
             f"insufficient data for header: have {len(raw)}, need {_HEADER_SIZE}"
         )
     protocol = raw[0]
-    opcode = raw[1]
-    payload_size = struct.unpack_from("<I", raw, 2)[0]
+    packet_length = struct.unpack_from("<I", raw, 1)[0]
+    if packet_length < 1:
+        raise PacketError(f"ED2K packet length cannot be less than one: {packet_length}")
+    payload_size = packet_length - 1
+    opcode = raw[5]
     end = _HEADER_SIZE + payload_size
     if len(raw) < end:
         raise PacketError(

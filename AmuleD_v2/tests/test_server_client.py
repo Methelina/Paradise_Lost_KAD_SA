@@ -5,9 +5,15 @@ real TCP socket: server message, server identity, server status, then ID change.
 No external network access is used.
 
 tests/test_server_client.py
-Version:     0.1.0
+Version:     0.1.2
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
+
+Patch Notes v0.1.2 (Soror L.'.L'.):
+  [+] Added extended eMule-compatible OP_IDCHANGE payload coverage for server
+      flags, primary TCP port, and reported IP.
+  [*] Updated the fake server to the real ED2K header order: protocol,
+      UInt32 packet length, opcode; packet length includes the opcode.
 
 Patch Notes v0.1.0 (Soror L.'.L'.):
   [+] Added real-loopback login handshake integration coverage.
@@ -66,9 +72,13 @@ def _status_payload(users: int = 1234, files: int = 5678) -> bytes:
     return writer.to_bytes()
 
 
-def _id_payload(client_id: int) -> bytes:
+def _id_payload(client_id: int, extended: bool = False) -> bytes:
     writer = BinaryWriter()
     writer.write_u32(client_id)
+    if extended:
+        writer.write_u32(0x000017F9)
+        writer.write_u32(4725)
+        writer.write_u32((187 << 24) | 3221225)
     return writer.to_bytes()
 
 
@@ -88,15 +98,15 @@ class FakeEd2kServer:
     ) -> None:
         try:
             header = await reader.readexactly(6)
-            size = int.from_bytes(header[2:6], "little")
-            payload = await reader.readexactly(size)
-            self.received_opcode = header[1]
+            packet_length = int.from_bytes(header[1:5], "little")
+            payload = await reader.readexactly(packet_length - 1)
+            self.received_opcode = header[5]
             self.received_payload = payload
 
             writer.write(_packet(C2STCP.SERVERMESSAGE, _message_payload("Welcome")))
             writer.write(_packet(C2STCP.SERVERIDENT, _identity_payload()))
             writer.write(_packet(C2STCP.SERVERSTATUS, _status_payload()))
-            writer.write(_packet(C2STCP.IDCHANGE, _id_payload(0x0A0B0C0D)))
+            writer.write(_packet(C2STCP.IDCHANGE, _id_payload(0x0A0B0C0D, extended=True)))
             await writer.drain()
         except (asyncio.IncompleteReadError, ConnectionResetError):
             pass
@@ -154,6 +164,11 @@ async def test_ed2k_login_handshake_over_real_loopback() -> None:
             assert result.status is not None
             assert result.status.users == 1234
             assert result.status.files == 5678
+            assert result.id_change is not None
+            assert result.id_change.server_flags == 0x000017F9
+            assert result.id_change.primary_tcp_port == 4725
+            assert result.id_change.reported_ip is not None
+            assert result.id_change.obfuscation_tcp_port is None
             assert client.logged_in is True
             assert result.elapsed >= 0.0
         assert client.is_connected is False
@@ -171,8 +186,8 @@ async def test_ed2k_login_classifies_low_id() -> None:
         writer: asyncio.StreamWriter,
     ) -> None:
         header = await reader.readexactly(6)
-        size = int.from_bytes(header[2:6], "little")
-        await reader.readexactly(size)
+        packet_length = int.from_bytes(header[1:5], "little")
+        await reader.readexactly(packet_length - 1)
         writer.write(_packet(C2STCP.IDCHANGE, _id_payload(123)))
         await writer.drain()
         writer.close()

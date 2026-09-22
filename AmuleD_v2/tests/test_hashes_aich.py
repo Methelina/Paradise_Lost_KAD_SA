@@ -5,11 +5,13 @@ streaming file/data equality, SHA1 vectors, and byte-exact ED2K
 ``OP_LOGINREQUEST`` framing.  No network sockets are used.
 
 tests/test_hashes_aich.py
-Version:     0.1.0
+Version:     0.1.1
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
 
-Patch Notes v0.1.0 (Soror L.'.L'.):
+Patch Notes v0.1.1 (Soror L.'.L'.):
+  [*] Updated login packet framing assertions to the real ED2K wire order:
+      protocol, UInt32 packet length, opcode.
   [+] Tested SHA1 vectors and AICH data/file round trips.
   [+] Tested one-block, multi-block, and PARTSIZE boundary tree invariants.
   [+] Tested verification success/failure and malformed-hash rejection.
@@ -171,8 +173,9 @@ def test_login_packet_wire_framing() -> None:
     assert packet.opcode == C2STCP.LOGINREQUEST
     assert packet.payload == build_login_payload(request)
     assert raw[0] == EDONKEY
-    assert raw[1] == 0x01
-    assert raw[2:6] == struct.pack("<I", len(packet.payload))
+    assert raw[1:5] == struct.pack("<I", len(packet.payload) + 1)
+    assert raw[5] == 0x01
+    assert raw[6:] == packet.payload
 
 
 def test_login_request_generates_fresh_hash_and_security_flags() -> None:

@@ -6,11 +6,15 @@ server identity/status/message parsing, and high/low-ID classification.  The
 client is loopback-testable and does not perform obfuscation yet.
 
 src/amuled_v2/core/ed2k/server_client.py
-Version:     0.1.1
+Version:     0.1.3
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
 
-Patch Notes v0.1.1 (Soror L.'.L'.):
+Patch Notes v0.1.3 (Soror L.'.L'.):
+  [+] Parsed complete eMule-compatible OP_IDCHANGE payload, including optional
+      server flags, primary TCP port, reported IP, and obfuscation TCP port.
+  [*] Corrected bounded receive parsing to the real ED2K header order:
+      protocol, UInt32 packet length, opcode; payload length is length-1.
   [*] Renamed the stored login model to avoid shadowing the async login method.
 
 Patch Notes v0.1.0 (Soror L.'.L'.):
@@ -44,6 +48,7 @@ log = get_tagged_logger(LogTags.ED2K, "core.ed2k.server_client")
 __all__ = [
     "Ed2kServerClient",
     "ServerIdentity",
+    "ServerIdChange",
     "ServerStatus",
     "ServerMessage",
     "LoginResult",
@@ -96,6 +101,22 @@ class ServerMessage:
     message: str
 
 
+@dataclass(frozen=True)
+class ServerIdChange:
+    """Parsed ``OP_IDCHANGE`` response.
+
+    eMule-compatible payload layout: client ID, server TCP flags, and primary
+    TCP port are mandatory; the reported IP and obfuscation TCP port are
+    optional and present only in extended responses.
+    """
+
+    client_id: int
+    server_flags: int = 0
+    primary_tcp_port: int = 0
+    reported_ip: Optional[int] = None
+    obfuscation_tcp_port: Optional[int] = None
+
+
 @dataclass
 class LoginResult:
     """Aggregated session state after a successful login handshake."""
@@ -104,6 +125,7 @@ class LoginResult:
     low_id: bool
     identity: Optional[ServerIdentity] = None
     status: Optional[ServerStatus] = None
+    id_change: Optional[ServerIdChange] = None
     messages: list[str] = field(default_factory=list)
     elapsed: float = 0.0
 
@@ -144,6 +166,23 @@ def _parse_server_message(payload: bytes) -> ServerMessage:
     if reader.remaining:
         raise ProtocolError(f"OP_SERVERMESSAGE has {reader.remaining} trailing bytes")
     return ServerMessage(message=message)
+
+
+def _parse_server_id_change(payload: bytes) -> ServerIdChange:
+    if len(payload) < 4:
+        raise ProtocolError(f"OP_IDCHANGE payload too short: {len(payload)}")
+    client_id = int.from_bytes(payload[0:4], "little")
+    server_flags = int.from_bytes(payload[4:8], "little") if len(payload) >= 8 else 0
+    primary_tcp_port = int.from_bytes(payload[8:12], "little") if len(payload) >= 12 else 0
+    reported_ip = int.from_bytes(payload[12:16], "little") if len(payload) >= 16 else None
+    obfuscation_port = int.from_bytes(payload[16:20], "little") if len(payload) >= 20 else None
+    return ServerIdChange(
+        client_id=client_id,
+        server_flags=server_flags,
+        primary_tcp_port=primary_tcp_port,
+        reported_ip=reported_ip,
+        obfuscation_tcp_port=obfuscation_port,
+    )
 
 
 class Ed2kServerClient:
@@ -246,7 +285,10 @@ class Ed2kServerClient:
                 self._reader.readexactly(_HEADER_SIZE),
                 timeout=self.response_timeout,
             )
-            payload_size = int.from_bytes(header[2:6], "little")
+            packet_length = int.from_bytes(header[1:5], "little")
+            if packet_length < 1:
+                raise ServerSessionError(f"ED2K packet length is below one: {packet_length}")
+            payload_size = packet_length - 1
             if payload_size > _MAX_PACKET_SIZE:
                 raise ServerSessionError(f"ED2K packet exceeds size limit: {payload_size}")
             payload = (
@@ -330,20 +372,10 @@ class Ed2kServerClient:
                 continue
 
             if packet.opcode == C2STCP.IDCHANGE:
-                reader = BinaryReader(packet.payload)
-                try:
-                    client_id = reader.read_u32()
-                except CodecError as exc:
-                    await self.close()
-                    raise ProtocolError(f"malformed OP_IDCHANGE: {exc}") from exc
-                if reader.remaining:
-                    await self.close()
-                    raise ProtocolError(
-                        f"OP_IDCHANGE has {reader.remaining} trailing bytes"
-                    )
+                id_change = _parse_server_id_change(packet.payload)
                 self.login_request = LoginRequest(
                     user_hash=self.login_request.user_hash,
-                    client_id=client_id,
+                    client_id=id_change.client_id,
                     client_port=self.login_request.client_port,
                     nickname=self.login_request.nickname,
                     edonkey_version=self.login_request.edonkey_version,
@@ -352,16 +384,18 @@ class Ed2kServerClient:
                 )
                 self.logged_in = True
                 result = LoginResult(
-                    client_id=client_id,
-                    low_id=client_id < _HIGH_ID_THRESHOLD,
+                    client_id=id_change.client_id,
+                    low_id=id_change.client_id < _HIGH_ID_THRESHOLD,
                     identity=self.identity,
                     status=self.status,
+                    id_change=id_change,
                     messages=list(self.messages),
                     elapsed=time.monotonic() - started,
                 )
                 log.info(
-                    f"ED2K login completed: client_id={client_id}, "
-                    f"low_id={result.low_id}, elapsed={result.elapsed:.3f}"
+                    f"ED2K login completed: client_id={id_change.client_id}, "
+                    f"low_id={result.low_id}, flags=0x{id_change.server_flags:08X}, "
+                    f"elapsed={result.elapsed:.3f}"
                 )
                 return result
 
