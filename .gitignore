@@ -1,0 +1,50 @@
+# === Python / Build Artifacts ===
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+*.pyc
+agents.md
+
+# === Virtual Environments ===
+env/
+venv/
+.venv/
+ENV/
+
+# === Runtime Data (Generated, Heavy, Personal) ===
+data/
+playwright_browsers/
+logs/
+hf_cache/
+temp/
+recon/
+docs/src/
+
+# === Configs & Secrets ===
+config/settings.yaml
+.env
+.env.local
+.secrets
+appearance_F*
+*projection.json
+.current_appearance 
+
+# === IDE & OS ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Root Safety ===
+*.log
+*.tmp
+nohup.out
+*.pid

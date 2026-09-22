@@ -1,0 +1,30 @@
+{
+  "app": {
+    "name": "amuled-v2"
+  },
+  "logging": {
+    "file": null,
+    "level": "INFO"
+  },
+  "network": {
+    "client_tcp_port": 8089,
+    "client_udp_port": 8089,
+    "enable_ed2k": true,
+    "enable_kad": true
+  },
+  "paths": {
+    "incoming": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\incoming",
+    "shared": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\shared",
+    "temp": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\temp"
+  },
+  "proxy": {
+    "enabled": false,
+    "host": null,
+    "password": null,
+    "port": null,
+    "username": null
+  },
+  "storage": {
+    "backend": "duckdb"
+  }
+}
