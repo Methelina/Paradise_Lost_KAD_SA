@@ -2,6 +2,18 @@
   "app": {
     "name": "amuled-v2"
   },
+  "geoip": {
+    "enabled": false,
+    "geoip_dat": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\assets\\v1\\GeoIP.dat"
+  },
+  "ipfilter": {
+    "ipfilter_dat": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\assets\\v1\\ipfilter.dat",
+    "ipfilter_static_dat": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\assets\\v1\\ipfilter_static.dat"
+  },
+  "kademlia": {
+    "bootstrap_nodes": [],
+    "nodes_dat": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\assets\\v1\\nodes.dat"
+  },
   "logging": {
     "file": null,
     "level": "INFO"
@@ -13,9 +25,9 @@
     "enable_kad": true
   },
   "paths": {
-    "incoming": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\incoming",
-    "shared": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\shared",
-    "temp": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\temp"
+    "incoming": null,
+    "shared": null,
+    "temp": null
   },
   "proxy": {
     "enabled": false,
@@ -23,6 +35,14 @@
     "password": null,
     "port": null,
     "username": null
+  },
+  "servers": {
+    "server_met": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\assets\\v1\\server.met",
+    "static_servers": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\assets\\v1\\staticservers.dat"
+  },
+  "sharing": {
+    "shared_files_json": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\assets\\v1\\shared_files.json",
+    "shareddir_dat": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\assets\\v1\\shareddir.dat"
   },
   "storage": {
     "backend": "duckdb"

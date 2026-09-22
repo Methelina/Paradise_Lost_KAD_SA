@@ -33,10 +33,9 @@ from amuled_v2.core.sharing import (
     scan_shared_directory,
 )
 
-_REAL_SHARED_JSON = Path(r"O:\Work\Coding\Paradise_Lost_KAD_SA\shared_files.json")
-_REAL_SHAREDDIR = Path(
-    r"O:\Work\Coding\Paradise_Lost_KAD_SA\amule-daemon-config\shareddir.dat"
-)
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+_REAL_SHARED_JSON = _PROJECT_ROOT / "assets" / "v1" / "shared_files.json"
+_REAL_SHAREDDIR = _PROJECT_ROOT / "assets" / "v1" / "shareddir.dat"
 
 
 def _write_v1_json(path: Path) -> None:
@@ -128,16 +127,16 @@ def test_generate_ed2k_link_with_part_hashes() -> None:
     assert link == f"ed2k://|file|tiny.bin|100|{expected_hash}|/"
 
 
-@pytest.mark.skipif(not _REAL_SHARED_JSON.exists(), reason="imported v1 shared_files.json unavailable")
+@pytest.mark.skipif(not _REAL_SHARED_JSON.exists(), reason="bundled shared_files.json unavailable")
 def test_real_shared_files_json_smoke() -> None:
     files = load_shared_files_json(_REAL_SHARED_JSON)
-    assert len(files) > 0
+    assert len(files) == 494
     assert all(len(item.file_hash) == 16 for item in files)
     assert all(item.size >= 0 for item in files)
 
 
-@pytest.mark.skipif(not _REAL_SHAREDDIR.exists(), reason="imported v1 shareddir.dat unavailable")
+@pytest.mark.skipif(not _REAL_SHAREDDIR.exists(), reason="bundled shareddir.dat unavailable")
 def test_real_shareddir_dat_smoke() -> None:
     directories = load_shareddir_dat(_REAL_SHAREDDIR)
-    assert len(directories) > 0
+    assert len(directories) == 246
     assert all(str(path) for path in directories)

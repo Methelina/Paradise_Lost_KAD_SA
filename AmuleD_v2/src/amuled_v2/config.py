@@ -15,6 +15,10 @@ Patch Notes v0.3.1 (Soror L.'.L'.):
   [*] Added recursive defaults merge so installer-generated configs remain
       compatible with runtime-only keys added in newer versions.
 
+Patch Notes v0.3.1 (Soror L.'.L'.):
+  [+] Added bundled baseline resource defaults so GitHub checkouts run without
+      any external donor directory.
+
 Patch Notes v0.1.0 (Soror L.'.L'.):
   [+] Default config dict with network, paths, storage, logging sections.
   [+] load_config() creates config from defaults if missing, normalizes null paths.
@@ -53,6 +57,26 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "incoming": None,
         "temp": None,
         "shared": None,
+    },
+    "kademlia": {
+        "nodes_dat": "assets/v1/nodes.dat",
+        "bootstrap_nodes": [],
+    },
+    "servers": {
+        "server_met": "assets/v1/server.met",
+        "static_servers": "assets/v1/staticservers.dat",
+    },
+    "sharing": {
+        "shared_files_json": "assets/v1/shared_files.json",
+        "shareddir_dat": "assets/v1/shareddir.dat",
+    },
+    "ipfilter": {
+        "ipfilter_dat": "assets/v1/ipfilter.dat",
+        "ipfilter_static_dat": "assets/v1/ipfilter_static.dat",
+    },
+    "geoip": {
+        "geoip_dat": "assets/v1/GeoIP.dat",
+        "enabled": False,
     },
     "proxy": {
         "enabled": False,

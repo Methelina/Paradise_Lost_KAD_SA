@@ -33,11 +33,9 @@ from amuled_v2.core.ed2k import (
     parse_server_met,
 )
 
-_REAL_SERVER_MET = Path(
-    r"O:\Work\Coding\Paradise_Lost_KAD_SA\amule-daemon-config\server.met"
-)
-_REAL_STATIC_SERVERS = Path(
-    r"O:\Work\Coding\Paradise_Lost_KAD_SA\amule-daemon-config\staticservers.dat"
+_REAL_SERVER_MET = Path(__file__).resolve().parents[1] / "assets" / "v1" / "server.met"
+_REAL_STATIC_SERVERS = (
+    Path(__file__).resolve().parents[1] / "assets" / "v1" / "staticservers.dat"
 )
 
 
@@ -127,17 +125,18 @@ def test_static_server_parser(tmp_path: Path) -> None:
     assert servers[1].priority == 0
 
 
-@pytest.mark.skipif(not _REAL_SERVER_MET.exists(), reason="imported v1 server.met unavailable")
+@pytest.mark.skipif(not _REAL_SERVER_MET.exists(), reason="bundled server.met unavailable")
 def test_real_imported_server_met_smoke() -> None:
     records = load_server_met(_REAL_SERVER_MET)
-    assert len(records) > 0
+    assert len(records) == 20
     assert all(0 <= record.port <= 0xFFFF for record in records)
     assert any(record.name for record in records)
 
 
-@pytest.mark.skipif(not _REAL_STATIC_SERVERS.exists(), reason="imported v1 staticservers.dat unavailable")
+@pytest.mark.skipif(not _REAL_STATIC_SERVERS.exists(), reason="bundled staticservers.dat unavailable")
 def test_real_imported_static_server_smoke() -> None:
     servers = load_static_servers(_REAL_STATIC_SERVERS)
-    assert len(servers) > 0
-    assert servers[0].endpoint if False else True
-    assert any("eMule" in server.name for server in servers)
+    assert len(servers) == 1
+    assert servers[0].host == "45.82.80.155"
+    assert servers[0].port == 5687
+    assert "eMule" in servers[0].name

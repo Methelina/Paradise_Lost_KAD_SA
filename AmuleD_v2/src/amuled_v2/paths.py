@@ -7,9 +7,13 @@ directory and an :func:`ensure_runtime_dirs` helper that creates them on
 demand.
 
 src/amuled_v2/paths.py
-Version:     0.1.0
+Version:     0.3.1
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
+
+Patch Notes v0.3.1 (Soror L.'.L'.):
+  [+] Added bundled baseline asset paths so GitHub checkouts work without any
+      external donor configuration directory.
 
 Patch Notes v0.1.0 (Soror L.'.L'.):
   [+] Project-root discovery via AMULED_ROOT env or package __file__.
@@ -52,6 +56,8 @@ TMP_DIR: Path = PROJECT_ROOT / "tmp"
 INCOMING_DIR: Path = PROJECT_ROOT / "incoming"
 TEMP_DIR: Path = PROJECT_ROOT / "temp"
 SHARED_DIR: Path = PROJECT_ROOT / "shared"
+ASSETS_DIR: Path = PROJECT_ROOT / "assets"
+BASELINE_ASSETS_DIR: Path = ASSETS_DIR / "v1"
 
 # ------------------------------------------------------------------
 # Runtime files
@@ -61,6 +67,14 @@ CONFIG_FILE: Path = CONFIG_DIR / "amuled.jsonc"
 DB_FILE: Path = DB_DIR / "amuled.db"
 STATE_JSON: Path = DB_DIR / "state.json"
 LOG_FILE: Path = LOGS_DIR / "amuled.log"
+BASELINE_SERVER_MET: Path = BASELINE_ASSETS_DIR / "server.met"
+BASELINE_NODES_DAT: Path = BASELINE_ASSETS_DIR / "nodes.dat"
+BASELINE_STATIC_SERVERS: Path = BASELINE_ASSETS_DIR / "staticservers.dat"
+BASELINE_IPFILTER: Path = BASELINE_ASSETS_DIR / "ipfilter.dat"
+BASELINE_IPFILTER_STATIC: Path = BASELINE_ASSETS_DIR / "ipfilter_static.dat"
+BASELINE_SHARED_FILES_JSON: Path = BASELINE_ASSETS_DIR / "shared_files.json"
+BASELINE_SHAREDDIR_DAT: Path = BASELINE_ASSETS_DIR / "shareddir.dat"
+BASELINE_GEOIP_DAT: Path = BASELINE_ASSETS_DIR / "GeoIP.dat"
 
 # ------------------------------------------------------------------
 # Directory helpers

@@ -1,6 +1,6 @@
 ﻿# ==========================================
 # SYNOPSIS
-#     AmuleD_v2 Installer v0.3.0
+#     AmuleD_v2 Installer v0.3.1
 #     Portable Python 3.12 + uv environment for the pure ED2K/Kademlia client.
 #     Fully isolated: uv, Python interpreters, caches, packages, config, and
 #     runtime state stay inside AmuleD_v2.
@@ -25,7 +25,7 @@
 #
 # ==========================================
 # VERSION
-#     0.3.0
+#     0.3.1
 # ==========================================
 # AUTHOR
 #     Soror L.'.L.'.
@@ -36,6 +36,12 @@
 #
 # CHANGELOG
 #
+# v0.3.1 (2026-09-22 by Soror L.'.L'.)
+#   [+] Added project-local baseline resources under assets\v1.
+#   [*] Repointed nodes, servers, IP filters, shared metadata, and GeoIP to the
+#       bundled project assets so a GitHub checkout is self-contained.
+#   [*] Removed the donor cryptkey path from the default template.
+
 # v0.3.0 (2026-09-22 by Soror L.'.L'.)
 #   [+] Full Trellis2-style portable isolation block: local uv, local managed
 #       Python, local package/cache/temp paths, and project-only execution.
@@ -85,7 +91,7 @@ Write-Host "     ░  ░  ░    ░      ░  ░  ░    ░" -ForegroundColo
 Write-Host ""
 Write-Host "  ===========================================" -ForegroundColor Green
 Write-Host "    AmuleD_v2 by Soror L.'.L.'." -ForegroundColor Yellow
-Write-Host "    AmuleD_v2 Installer v0.3.0" -ForegroundColor Green
+Write-Host "    AmuleD_v2 Installer v0.3.1" -ForegroundColor Green
 Write-Host "    Python 3.12 Portable Runtime" -ForegroundColor Cyan
 Write-Host ""
 
@@ -248,7 +254,7 @@ function Get-LocalUv {
 function Get-DefaultConfig {
     return @'
 // AmuleD_v2 Configuration (JSONC)
-// Version: 0.3.0
+// Version: 0.3.1
 // Updated: 2026-09-22
 
 {
@@ -272,7 +278,7 @@ function Get-DefaultConfig {
 
   // Kademlia bootstrap
   "kademlia": {
-    "nodes_dat": "amule-daemon-config/nodes.dat",
+    "nodes_dat": "assets/v1/nodes.dat",
     "bootstrap_nodes": [],
     "max_bucket_size": 20,
     "ping_timeout": 10,
@@ -281,16 +287,16 @@ function Get-DefaultConfig {
 
   // ED2K server list
   "servers": {
-    "server_met": "amule-daemon-config/server.met",
-    "static_servers": "amule-daemon-config/staticservers.dat",
+    "server_met": "assets/v1/server.met",
+    "static_servers": "assets/v1/staticservers.dat",
     "auto_update_server_met": false
   },
 
   // Sharing configuration
   "sharing": {
     "shared_dirs": [],
-    "shared_files_json": "shared_files.json",
-    "shareddir_dat": "amule-daemon-config/shareddir.dat",
+    "shared_files_json": "assets/v1/shared_files.json",
+    "shareddir_dat": "assets/v1/shareddir.dat",
     "incoming_dir": "incoming",
     "temp_dir": "temp",
     "max_upload_slots": 3,
@@ -313,8 +319,8 @@ function Get-DefaultConfig {
 
   // IP filter
   "ipfilter": {
-    "ipfilter_dat": "amule-daemon-config/ipfilter.dat",
-    "ipfilter_static_dat": "amule-daemon-config/ipfilter_static.dat",
+    "ipfilter_dat": "assets/v1/ipfilter.dat",
+    "ipfilter_static_dat": "assets/v1/ipfilter_static.dat",
     "auto_update": false
   },
 
@@ -322,7 +328,7 @@ function Get-DefaultConfig {
   "security": {
     "enable_obfuscation": true,
     "enable_secure_ident": false,
-    "cryptkey_file": "amule-daemon-config/cryptkey.dat"
+    "cryptkey_file": null
   },
 
   // Search
@@ -350,7 +356,7 @@ function Get-DefaultConfig {
 
   // GeoIP
   "geoip": {
-    "geoip_dat": "amule-daemon-config/GeoIP.dat",
+    "geoip_dat": "assets/v1/GeoIP.dat",
     "enabled": false
   }
 }
