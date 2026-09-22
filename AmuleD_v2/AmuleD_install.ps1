@@ -1,6 +1,6 @@
 ﻿# ==========================================
 # SYNOPSIS
-#     AmuleD_v2 Installer v0.3.1
+#     AmuleD v0.4.1 Portable Installer
 #     Portable Python 3.12 + uv environment for the pure ED2K/Kademlia client.
 #     Fully isolated: uv, Python interpreters, caches, packages, config, and
 #     runtime state stay inside AmuleD_v2.
@@ -92,7 +92,7 @@ Write-Host "     ░  ░  ░    ░      ░  ░  ░    ░" -ForegroundColo
 Write-Host ""
 Write-Host "  ===========================================" -ForegroundColor Green
 Write-Host "    AmuleD_v2 by Soror L.'.L.'." -ForegroundColor Yellow
-Write-Host "    AmuleD_v2 Installer v0.3.1" -ForegroundColor Green
+Write-Host "    AmuleD v0.4.1 Portable Installer" -ForegroundColor Green
 Write-Host "    Python 3.12 Portable Runtime" -ForegroundColor Cyan
 Write-Host ""
 
@@ -255,7 +255,7 @@ function Get-LocalUv {
 function Get-DefaultConfig {
     return @'
 // AmuleD_v2 Configuration (JSONC)
-// Version: 0.3.1
+// Version: 0.4.1
 // Updated: 2026-09-22
 
 {

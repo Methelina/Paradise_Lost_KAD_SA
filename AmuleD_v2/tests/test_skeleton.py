@@ -14,13 +14,13 @@ real project ``config``, ``db``, ``logs``, ``incoming``, ``temp``, or
 ``shared`` directories.  Tests are deterministic, require no network, and
 skip DuckDB-specific assertions when the json-fallback backend is in use.
 
-tests/test_skeleton.py
-Version:     0.2.0
+src/amuled_v2/../tests/test_skeleton.py
+Version:     0.2.5
 Author:      Soror L.'.L'.
 Updated:     2026-09-22
 
-Patch Notes v0.2.4 (Soror L.'.L'.):
-  [*] Updated package version assertions to 0.4.1.
+Patch Notes v0.2.5 (Soror L.'.L'.):
+  [+] Added public display-name assertions for `AmuleD v0.4.1`.
 
 Patch Notes v0.1.0 (Soror L.'.L'.):
   [+] JSONC comment-stripping unit tests (line, block, escape, trailing).
@@ -211,8 +211,8 @@ class TestCliSmoke:
     def test_version_output(self, isolated_root: Path) -> None:
         result = _run_cli(["--version"], isolated_root)
         assert result.returncode == 0
-        assert "amuled-v2" in result.stdout
-        assert "0.4.1" in result.stdout
+        assert "AmuleD" in result.stdout
+        assert "v0.4.1" in result.stdout
 
     def test_init_json(self, isolated_root: Path) -> None:
         result = _run_cli(["init", "--json"], isolated_root)
@@ -233,7 +233,7 @@ class TestCliSmoke:
         result = _run_cli(["status", "--json"], isolated_root)
         assert result.returncode == 0
         data = json.loads(result.stdout)
-        assert data["app"] == "amuled-v2"
+        assert data["app"] == "AmuleD"
         assert data["version"] == "0.4.1"
         assert data["backend"] == backend
         assert data["db_path"] == db_path

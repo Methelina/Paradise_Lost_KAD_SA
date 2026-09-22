@@ -7,9 +7,12 @@ normalizes null paths to portable runtime directories, and CLI helpers
 inference.
 
 src/amuled_v2/config.py
-Version:     0.3.2
+Version:     0.4.2
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
+
+Patch Notes v0.4.2 (Soror L.'.L'.):
+  [+] Changed the public application name to `AmuleD`.
 
 Patch Notes v0.3.2 (Soror L.'.L'.):
   [+] Added tagged CONFIG diagnostics for load, create, merge, and save events.
@@ -53,7 +56,7 @@ log = get_tagged_logger(LogTags.CONFIG, "config")
 
 DEFAULT_CONFIG: dict[str, Any] = {
     "app": {
-        "name": "amuled-v2",
+        "name": "AmuleD",
     },
     "network": {
         "client_tcp_port": 8089,

@@ -12,9 +12,12 @@ Dependencies (duckdb, rich) are optional at runtime; ``--help`` works without
 them installed.  Network/protocol modules are not imported.
 
 src/amuled_v2/cli.py
-Version:     0.3.2
+Version:     0.4.2
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
+
+Patch Notes v0.4.2 (Soror L.'.L'.):
+  [+] Unified public display name to `AmuleD v0.4.1` across CLI and status.
 
 Patch Notes v0.3.2 (Soror L.'.L'.):
   [+] Added tagged CLI command lifecycle diagnostics and error reporting.
@@ -36,7 +39,7 @@ import json
 import sys
 from typing import Sequence
 
-from amuled_v2 import __version__
+from amuled_v2 import __app_name__, __version__, __version_string__
 from amuled_v2.config import config_set, config_show, load_config
 from amuled_v2.daemon import start_daemon, stop_daemon
 from amuled_v2.logging_setup import LogTags, configure_logging, get_tagged_logger
@@ -70,7 +73,7 @@ def _cmd_status(args: argparse.Namespace) -> int:
     st.connect()
     status = st.get_status()
     result: dict = {
-        "app": "amuled-v2",
+        "app": __app_name__,
         "version": __version__,
         "backend": status["backend"],
         "db_path": status["db_path"],
@@ -85,7 +88,7 @@ def _cmd_status(args: argparse.Namespace) -> int:
     if args.json:
         _print_json(result)
     else:
-        _print_text("AmuleD_v2 Status", [
+        _print_text(f"{__version_string__} Status", [
             f"version    : {result['version']}",
             f"backend    : {result['backend']}",
             f"db_path    : {result['db_path']}",
@@ -273,13 +276,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
         prog="amuled",
-        description="Pure Python ED2K/Kademlia client (AmuleD v2).",
+        description=f"{__version_string__} — pure Python ED2K/Kademlia client.",
         parents=parents,
     )
     parser.add_argument(
         "--version",
         action="version",
-        version=f"amuled-v2 {__version__}",
+        version=__version_string__,
     )
 
     sub = parser.add_subparsers(dest="command", metavar="<command>")
