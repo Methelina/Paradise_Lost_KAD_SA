@@ -7,9 +7,13 @@ normalizes null paths to portable runtime directories, and CLI helpers
 inference.
 
 src/amuled_v2/config.py
-Version:     0.1.0
+Version:     0.3.1
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
+
+Patch Notes v0.3.1 (Soror L.'.L'.):
+  [*] Added recursive defaults merge so installer-generated configs remain
+      compatible with runtime-only keys added in newer versions.
 
 Patch Notes v0.1.0 (Soror L.'.L'.):
   [+] Default config dict with network, paths, storage, logging sections.
@@ -67,6 +71,21 @@ DEFAULT_CONFIG: dict[str, Any] = {
 }
 
 
+def _deep_merge(defaults: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]:
+    """Return defaults recursively overlaid by user values."""
+    merged = copy.deepcopy(defaults)
+    for key, value in values.items():
+        if (
+            key in merged
+            and isinstance(merged[key], dict)
+            and isinstance(value, dict)
+        ):
+            merged[key] = _deep_merge(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
 def _normalize_paths(cfg: dict[str, Any]) -> dict[str, Any]:
     """Replace null path entries with portable runtime defaults."""
     paths = cfg.get("paths", {})
@@ -93,7 +112,10 @@ def load_config(save_if_missing: bool = True) -> dict[str, Any]:
     """
     ensure_runtime_dirs()
     if CONFIG_FILE.exists():
-        cfg = load_jsonc_file(CONFIG_FILE)
+        user_cfg = load_jsonc_file(CONFIG_FILE)
+        if not isinstance(user_cfg, dict):
+            raise ValueError(f"configuration root must be a JSON object: {CONFIG_FILE}")
+        cfg = _deep_merge(DEFAULT_CONFIG, user_cfg)
         _normalize_paths(cfg)
         return cfg
     # --- first run: write defaults ---

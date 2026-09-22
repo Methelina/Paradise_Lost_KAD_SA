@@ -12,9 +12,12 @@ Dependencies (duckdb, rich) are optional at runtime; ``--help`` works without
 them installed.  Network/protocol modules are not imported.
 
 src/amuled_v2/cli.py
-Version:     0.1.0
+Version:     0.3.0
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
+
+Patch Notes v0.3.0 (Soror L.'.L'.):
+  [+] Added one-shot v1 import commands for server lists and shared metadata.
 
 Patch Notes v0.1.0 (Soror L.'.L'.):
   [+] argparse CLI with --json, status, config show/set, init, daemon.
@@ -149,6 +152,85 @@ def _cmd_daemon_stop(args: argparse.Namespace) -> int:
 
 
 # ------------------------------------------------------------------
+# Import command handlers
+# ------------------------------------------------------------------
+
+def _cmd_import_servers(args: argparse.Namespace) -> int:
+    from amuled_v2.core.ed2k import load_server_met, load_static_servers
+
+    records = load_server_met(args.server_met)
+    static = load_static_servers(args.static) if args.static else []
+    saved_servers = 0
+    saved_static = 0
+    if args.save:
+        from amuled_v2.state import get_state
+
+        state = get_state()
+        state.connect()
+        saved_servers = state.save_servers(records)
+        saved_static = state.save_static_servers(static)
+    result = {
+        "status": "ok",
+        "servers": len(records),
+        "static_servers": len(static),
+        "saved_servers": saved_servers,
+        "saved_static_servers": saved_static,
+        "server_met": str(args.server_met),
+        "staticservers_dat": str(args.static) if args.static else None,
+    }
+    if args.json:
+        _print_json(result)
+    else:
+        _print_text("Import servers", [
+            f"status          : {result['status']}",
+            f"servers         : {result['servers']}",
+            f"static_servers  : {result['static_servers']}",
+            f"server_met      : {result['server_met']}",
+            f"static_list     : {result['staticservers_dat']}",
+        ])
+    return 0
+
+
+def _cmd_import_shared(args: argparse.Namespace) -> int:
+    from amuled_v2.core.sharing import (
+        load_shareddir_dat,
+        load_shared_files_json,
+    )
+
+    files = load_shared_files_json(args.shared_json)
+    directories = load_shareddir_dat(args.shareddir) if args.shareddir else []
+    saved_files = 0
+    saved_dirs = 0
+    if args.save:
+        from amuled_v2.state import get_state
+
+        state = get_state()
+        state.connect()
+        saved_files = state.save_shared_files(files)
+        saved_dirs = state.save_shared_directories(str(path) for path in directories)
+    result = {
+        "status": "ok",
+        "shared_files": len(files),
+        "shared_directories": len(directories),
+        "saved_shared_files": saved_files,
+        "saved_shared_directories": saved_dirs,
+        "shared_files_json": str(args.shared_json),
+        "shareddir_dat": str(args.shareddir) if args.shareddir else None,
+    }
+    if args.json:
+        _print_json(result)
+    else:
+        _print_text("Import shared metadata", [
+            f"status             : {result['status']}",
+            f"shared_files       : {result['shared_files']}",
+            f"shared_directories : {result['shared_directories']}",
+            f"shared_json        : {result['shared_files_json']}",
+            f"shared_dirs        : {result['shareddir_dat']}",
+        ])
+    return 0
+
+
+# ------------------------------------------------------------------
 # Argument parser
 # ------------------------------------------------------------------
 
@@ -197,6 +279,52 @@ def build_parser() -> argparse.ArgumentParser:
     # --- init ---
     p_init = sub.add_parser("init", help="Initialize runtime dirs and config.", parents=parents)
     p_init.set_defaults(func=_cmd_init)
+
+    # --- import ---
+    p_import = sub.add_parser("import", help="Import compatible v1 resources.", parents=parents)
+    import_sub = p_import.add_subparsers(dest="import_command", metavar="<resource>")
+
+    p_import_servers = import_sub.add_parser(
+        "servers",
+        help="Import server.met and optional staticservers.dat.",
+        parents=parents,
+    )
+    p_import_servers.add_argument(
+        "--server-met",
+        required=True,
+        help="Path to the source server.met file.",
+    )
+    p_import_servers.add_argument(
+        "--static",
+        help="Optional path to staticservers.dat.",
+    )
+    p_import_servers.add_argument(
+        "--save",
+        action="store_true",
+        help="Persist imported records to the project DuckDB state.",
+    )
+    p_import_servers.set_defaults(func=_cmd_import_servers)
+
+    p_import_shared = import_sub.add_parser(
+        "shared",
+        help="Import v1 shared_files.json and optional shareddir.dat.",
+        parents=parents,
+    )
+    p_import_shared.add_argument(
+        "--shared-json",
+        required=True,
+        help="Path to the source shared_files.json file.",
+    )
+    p_import_shared.add_argument(
+        "--shareddir",
+        help="Optional path to shareddir.dat.",
+    )
+    p_import_shared.add_argument(
+        "--save",
+        action="store_true",
+        help="Persist imported metadata to the project DuckDB state.",
+    )
+    p_import_shared.set_defaults(func=_cmd_import_shared)
 
     # --- daemon ---
     p_daemon = sub.add_parser("daemon", help="Daemon lifecycle (M2 stub).", parents=parents)

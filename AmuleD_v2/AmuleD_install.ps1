@@ -1,27 +1,68 @@
-﻿<#
-.SYNOPSIS
-    AmuleD_v2 installer by Soror L.'.L.'.
-    Creates a portable uv `.venv` with Python 3.12, prepares runtime directories,
-    generates a default JSONC config only if missing, installs dependencies from
-    requirements.txt, verifies critical imports, and writes logs\install.log.
-    Idempotent: safe to re-run; never overwrites an existing config.
-
-    O:\Work\Coding\Paradise_Lost_KAD_SA\AmuleD_v2\AmuleD_install.ps1
-    Version: 0.2.0
-    Author: Soror L.'.L.'.
-    Updated: 2026-09-22
-
-Patch Notes v0.2.0 (Soror L.'.L.'):
-  [*] Restored the original authored ASCII welcome/menu style while keeping the new uv-based AmuleD_v2 behavior.
-  [*] Preserved the established installer structure and detailed step logging.
-
-Patch Notes v0.1.0 (Soror L.'.L'.):
-  [+] Clean-room uv-based installer for AmuleD_v2 (Python ED2K/Kademlia client).
-  [+] Replaces the legacy borrowed installer with AmuleD_v2-specific logic.
-  [+] Idempotent: skips .venv creation if present, never overwrites config.
-  [+] Creates portable runtime dirs: config, db, logs, tmp, incoming, temp, shared.
-  [+] Writes install log to logs\install.log.
-#>
+﻿# ==========================================
+# SYNOPSIS
+#     AmuleD_v2 Installer v0.3.0
+#     Portable Python 3.12 + uv environment for the pure ED2K/Kademlia client.
+#     Fully isolated: uv, Python interpreters, caches, packages, config, and
+#     runtime state stay inside AmuleD_v2.
+# ==========================================
+#
+# DESCRIPTION
+#     This script prepares a self-contained AmuleD_v2 runtime:
+#       - Downloads or refreshes a local uv.exe inside AmuleD_v2\bin.
+#       - Pins uv-managed Python 3.12 inside AmuleD_v2\bin\uv-python.
+#       - Pins uv cache, package cache, temp files, and Python bytecode inside
+#         AmuleD_v2\.cache or AmuleD_v2\bin.
+#       - Creates the portable runtime tree: config, db, logs, tmp, incoming,
+#         temp, shared.
+#       - Creates config\amuled.jsonc only if missing.
+#       - Installs requirements.txt into .venv using only the project-local
+#         Python executable.
+#       - Verifies critical imports and writes logs\install.log.
+#
+#     The installer never selects, repairs, upgrades, or mutates any system
+#     Python. The only interpreter used by the project is:
+#       AmuleD_v2\.venv\Scripts\python.exe
+#
+# ==========================================
+# VERSION
+#     0.3.0
+# ==========================================
+# AUTHOR
+#     Soror L.'.L.'.
+# ==========================================
+# UPDATED
+#     2026-09-22
+# ==========================================
+#
+# CHANGELOG
+#
+# v0.3.0 (2026-09-22 by Soror L.'.L'.)
+#   [+] Full Trellis2-style portable isolation block: local uv, local managed
+#       Python, local package/cache/temp paths, and project-only execution.
+#   [+] Downloads uv into bin\ when a local copy is missing.
+#   [+] Uses --managed-python so no system Python can be selected.
+#   [+] Adds PyCryptodome MD4 runtime dependency.
+#   [*] Aligns installer and runtime DB path to db\amuled.db.
+#
+# v0.2.1 (2026-09-22 by Soror L.'.L'.)
+#   [+] Initial uv-managed Python and cache pinning inside AmuleD_v2\bin.
+#
+# v0.2.0 (2026-09-22 by Soror L.'.L'.)
+#   [*] Restored the authored ASCII welcome/menu style.
+#
+# v0.1.0 (2026-09-22 by Soror L.'.L'.)
+#   [+] Initial AmuleD_v2 portable installer skeleton.
+#
+# ==========================================
+# USAGE
+#     Run from AmuleD_v2:
+#         .\AmuleD_install.ps1
+#
+# NOTES
+#     - Internet is required on first run to download uv/Python/packages.
+#     - Re-runs are idempotent and preserve config\amuled.jsonc.
+#     - Agents and developers must use .venv\Scripts\python.exe only.
+# ==========================================
 
 # === Encoding ===
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -44,32 +85,94 @@ Write-Host "     ░  ░  ░    ░      ░  ░  ░    ░" -ForegroundColo
 Write-Host ""
 Write-Host "  ===========================================" -ForegroundColor Green
 Write-Host "    AmuleD_v2 by Soror L.'.L.'." -ForegroundColor Yellow
-Write-Host "    AmuleD_v2 Installer v0.2.0" -ForegroundColor Green
-Write-Host "    Python 3.12 Ready" -ForegroundColor Cyan
+Write-Host "    AmuleD_v2 Installer v0.3.0" -ForegroundColor Green
+Write-Host "    Python 3.12 Portable Runtime" -ForegroundColor Cyan
 Write-Host ""
 
 # === Execution Policy ===
 Set-StrictMode -Version 3.0
 $ErrorActionPreference = "Stop"
 
-# === Path Configuration ===
+# === Path & Init ===
 $ProjectRoot = $PSScriptRoot
-$VenvPath    = Join-Path $ProjectRoot ".venv"
-$VenvPython  = Join-Path $VenvPath "Scripts\python.exe"
-$ConfigDir   = Join-Path $ProjectRoot "config"
-$DbDir       = Join-Path $ProjectRoot "db"
-$LogsDir     = Join-Path $ProjectRoot "logs"
-$TmpDir      = Join-Path $ProjectRoot "tmp"
-$IncomingDir = Join-Path $ProjectRoot "incoming"
-$TempDir     = Join-Path $ProjectRoot "temp"
-$SharedDir   = Join-Path $ProjectRoot "shared"
-$ReqFile     = Join-Path $ProjectRoot "requirements.txt"
-$ConfigFile  = Join-Path $ConfigDir "amuled.jsonc"
-$LogFile     = Join-Path $LogsDir "install.log"
+if (-not $ProjectRoot) { $ProjectRoot = "." }
+Set-Location $ProjectRoot
+
+# ==========================================
+# === PORTABILITY ISOLATION BLOCK ===
+# ==========================================
+# Set every runtime path before invoking uv or Python.
+
+$BinDir        = Join-Path $ProjectRoot "bin"
+$CacheDir      = Join-Path $ProjectRoot ".cache"
+$UvCacheDir    = Join-Path $CacheDir "uv"
+$UvPythonDir   = Join-Path $BinDir "uv-python"
+$UvToolsDir    = Join-Path $BinDir "uv-tools"
+$UvToolBinDir  = Join-Path $BinDir "uv-tool-bin"
+$PipCacheDir   = Join-Path $CacheDir "pip"
+$PycacheDir    = Join-Path $CacheDir "pycache"
+$TempCacheDir  = Join-Path $CacheDir "tmp"
+$PythonUserDir = Join-Path $BinDir "python-userbase"
+$VenvPath      = Join-Path $ProjectRoot ".venv"
+$VenvPython    = Join-Path $VenvPath "Scripts\python.exe"
+$UvExePath     = Join-Path $BinDir "uv.exe"
+
+$ConfigDir     = Join-Path $ProjectRoot "config"
+$DbDir         = Join-Path $ProjectRoot "db"
+$LogsDir       = Join-Path $ProjectRoot "logs"
+$TmpDir        = Join-Path $ProjectRoot "tmp"
+$IncomingDir   = Join-Path $ProjectRoot "incoming"
+$TempDir       = Join-Path $ProjectRoot "temp"
+$SharedDir     = Join-Path $ProjectRoot "shared"
+$ReqFile       = Join-Path $ProjectRoot "requirements.txt"
+$ConfigFile    = Join-Path $ConfigDir "amuled.jsonc"
+$LogFile       = Join-Path $LogsDir "install.log"
 $PythonVersion = "3.12"
 
+@(
+    $BinDir, $CacheDir, $UvCacheDir, $UvPythonDir, $UvToolsDir, $UvToolBinDir,
+    $PipCacheDir, $PycacheDir, $TempCacheDir, $PythonUserDir,
+    $ConfigDir, $DbDir, $LogsDir, $TmpDir, $IncomingDir, $TempDir, $SharedDir
+) | ForEach-Object {
+    if (-not (Test-Path $_)) {
+        New-Item -ItemType Directory -Force -Path $_ | Out-Null
+    }
+}
+
+$env:AMULED_ROOT            = $ProjectRoot
+$env:AMULED_CONFIG          = $ConfigFile
+$env:AMULED_DB              = Join-Path $DbDir "amuled.db"
+$env:AMULED_LOGS            = $LogsDir
+$env:AMULED_VENV_PYTHON     = $VenvPython
+$env:AMULED_UV_EXE          = $UvExePath
+$env:PYTHONUNBUFFERED       = "1"
+$env:PYTHONNOUSERSITE       = "1"
+$env:PYTHONUSERBASE         = $PythonUserDir
+$env:PYTHONPYCACHEPREFIX    = $PycacheDir
+$env:TEMP                   = $TempCacheDir
+$env:TMP                    = $TempCacheDir
+$env:XDG_CACHE_HOME         = $CacheDir
+$env:UV_CACHE_DIR           = $UvCacheDir
+$env:UV_PYTHON_INSTALL_DIR  = $UvPythonDir
+$env:UV_TOOL_DIR            = $UvToolsDir
+$env:UV_TOOL_BIN_DIR        = $UvToolBinDir
+$env:UV_MANAGED_PYTHON      = "true"
+$env:UV_PROJECT_ENVIRONMENT = $VenvPath
+$env:PIP_CACHE_DIR          = $PipCacheDir
+Remove-Item Env:UV_NO_MANAGED_PYTHON -ErrorAction SilentlyContinue
+
+# === Local uv Bootstrap ===
+$UvVersion  = "0.9.14"
+$UvArch     = "x86_64-pc-windows-msvc"
+$UvZipUrl   = "https://releases.astral.sh/github/uv/releases/download/$UvVersion/uv-$UvArch.zip"
+$UvZipPath  = Join-Path $UvCacheDir "uv-$UvVersion-$UvArch.zip"
+
 # === Runtime Directories ===
-$RuntimeDirs = @($ConfigDir, $DbDir, $LogsDir, $TmpDir, $IncomingDir, $TempDir, $SharedDir)
+$RuntimeDirs = @(
+    $BinDir, $CacheDir, $UvCacheDir, $UvPythonDir, $UvToolsDir, $UvToolBinDir,
+    $PipCacheDir, $PycacheDir, $TempCacheDir, $PythonUserDir,
+    $ConfigDir, $DbDir, $LogsDir, $TmpDir, $IncomingDir, $TempDir, $SharedDir
+)
 
 # === Logging ===
 function Write-Status {
@@ -92,17 +195,60 @@ function Write-Status {
     }
 }
 
-# === Helper: Test Command ===
+function Write-Step {
+    param([string]$Message, [int]$Step, [int]$Total)
+    Write-Host ""
+    Write-Host ">>> Stage [$Step/$Total]: $Message" -ForegroundColor Magenta
+}
+
 function Test-Command {
     param([string]$Cmd)
     return $null -ne (Get-Command $Cmd -ErrorAction SilentlyContinue)
 }
 
-# === Default Config Template ===
+function Invoke-Uv {
+    param([string[]]$ArgumentList)
+    Write-Host "   > uv $($ArgumentList -join ' ')" -ForegroundColor DarkGray
+    & $UvExePath @ArgumentList
+    return $LASTEXITCODE
+}
+
+function Invoke-VenvPython {
+    param([string[]]$ArgumentList)
+    Write-Host "   > .venv python $($ArgumentList -join ' ')" -ForegroundColor DarkGray
+    & $VenvPython @ArgumentList
+    return $LASTEXITCODE
+}
+
+function Get-LocalUv {
+    if (Test-Path $UvExePath) {
+        Write-Status "Local uv found: $UvExePath" "SUCCESS"
+        return
+    }
+
+    Write-Status "Local uv not found; downloading uv $UvVersion..." "INFO"
+    try {
+        Invoke-WebRequest -Uri $UvZipUrl -OutFile $UvZipPath -UseBasicParsing
+        $extractDir = Join-Path $UvCacheDir "uv-$UvVersion-$UvArch"
+        if (Test-Path $extractDir) { Remove-Item -Recurse -Force $extractDir }
+        Expand-Archive -Path $UvZipPath -DestinationPath $extractDir -Force
+        $downloadedUv = Join-Path $extractDir "uv.exe"
+        if (-not (Test-Path $downloadedUv)) {
+            throw "uv.exe not found inside $UvZipPath"
+        }
+        Copy-Item -Path $downloadedUv -Destination $UvExePath -Force
+        Write-Status "Local uv installed: $UvExePath" "SUCCESS"
+    } catch {
+        Write-Status "ERROR: Failed to prepare local uv: $($_.Exception.Message)" "ERROR"
+        Write-Status "Install uv manually or restore network access, then re-run." "ERROR"
+        exit 1
+    }
+}
+
 function Get-DefaultConfig {
     return @'
 // AmuleD_v2 Configuration (JSONC)
-// Version: 0.1.0
+// Version: 0.3.0
 // Updated: 2026-09-22
 
 {
@@ -162,7 +308,7 @@ function Get-DefaultConfig {
     "incoming_dir": "incoming",
     "temp_dir": "temp",
     "shared_dir": "shared",
-    "db_file": "db/amuled_state.db"
+    "db_file": "db/amuled.db"
   },
 
   // IP filter
@@ -189,7 +335,7 @@ function Get-DefaultConfig {
   // Download
   "download": {
     "chunk_size": 9728000,
-    "block_size": 180224,
+    "block_size": 184320,
     "disk_space_reserve_mb": 100,
     "auto_retry_failed": true,
     "max_retries": 3
@@ -212,127 +358,124 @@ function Get-DefaultConfig {
 }
 
 # === Main Install Process ===
+Write-Step "Preparing portable installer" 0 6
+Write-Status "Project root : $ProjectRoot" "CYAN"
+Write-Status "Python target: $PythonVersion (uv-managed, project-local)" "CYAN"
+Write-Status "Runtime root : $VenvPath" "CYAN"
+Write-Status "Local uv     : $UvExePath" "CYAN"
 
-# Step 0: Ensure logs directory exists for logging
-if (-not (Test-Path $LogsDir)) {
-    New-Item -ItemType Directory -Path $LogsDir -Force | Out-Null
-}
+# Stage 1: local uv
+Write-Step "Resolving project-local uv" 1 6
+Get-LocalUv
+$uvVersion = (& $UvExePath --version 2>$null).Trim()
+Write-Status "uv version: $uvVersion" "SUCCESS"
 
-Write-Status "========== AmuleD_v2 Installer ==========" "INFO"
-Write-Status "Python target: $PythonVersion" "CYAN"
-Write-Status "Project root: $ProjectRoot" "CYAN"
-
-# Step 1: Check uv availability
-Write-Status "[1/5] Checking uv availability..." "INFO"
-if (-not (Test-Command "uv")) {
-    Write-Status "ERROR: 'uv' not found on PATH. Install uv first:" "ERROR"
-    Write-Status "  winget install uv  OR  irm https://astral.sh/uv/install.ps1 | iex" "ERROR"
-    exit 1
-}
-$uvVersion = (uv --version 2>$null).Trim()
-Write-Status "  Found uv: $uvVersion" "SUCCESS"
-
-# Step 2: Create runtime directories
-Write-Status "[2/5] Creating runtime directories..." "INFO"
+# Stage 2: runtime directories
+Write-Step "Creating portable runtime directories" 2 6
 foreach ($dir in $RuntimeDirs) {
     if (-not (Test-Path $dir)) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
         Write-Status "  Created: $dir" "INFO"
     }
 }
-Write-Status "  [+] All runtime directories ready" "SUCCESS"
+Write-Status "All runtime directories are ready" "SUCCESS"
 
-# Step 3: Create config if missing
-Write-Status "[3/5] Checking configuration..." "INFO"
+# Stage 3: config
+Write-Step "Creating default JSONC configuration" 3 6
 if (-not (Test-Path $ConfigFile)) {
-    if (Test-Path $ConfigDir) {
-        $defaultConfig = Get-DefaultConfig
-        $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-        [System.IO.File]::WriteAllText($ConfigFile, $defaultConfig, $utf8NoBom)
-        Write-Status "  [+] Created default config: $ConfigFile" "SUCCESS"
-    } else {
-        Write-Status "  [!] Config dir not found, skipping config creation" "WARN"
-    }
+    $defaultConfig = Get-DefaultConfig
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText($ConfigFile, $defaultConfig, $utf8NoBom)
+    Write-Status "Created default config: $ConfigFile" "SUCCESS"
 } else {
-    Write-Status "  Config already exists, leaving untouched: $ConfigFile" "INFO"
+    Write-Status "Config already exists, leaving untouched: $ConfigFile" "INFO"
 }
 
-# Step 4: Create or verify .venv with Python 3.12
-Write-Status "[4/5] Setting up Python $PythonVersion virtual environment..." "INFO"
+# Stage 4: project-local Python 3.12 venv
+Write-Step "Creating project-local Python $PythonVersion environment" 4 6
 if (-not (Test-Path $VenvPython)) {
-    Write-Status "  Creating .venv with Python $PythonVersion via uv..." "INFO"
-    Push-Location $ProjectRoot
-    try {
-        $env:UV_PROJECT_ENVIRONMENT = $VenvPath
-        $result = uv venv $VenvPath --python $PythonVersion 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Status "ERROR: uv venv failed: $result" "ERROR"
-            Pop-Location
-            exit 1
-        }
-        Write-Status "  [+] .venv created at $VenvPath" "SUCCESS"
-    } finally {
-        Pop-Location
+    $venvArgs = @(
+        "venv", $VenvPath,
+        "--python", $PythonVersion,
+        "--managed-python",
+        "--no-config"
+    )
+    $venvExit = Invoke-Uv -ArgumentList $venvArgs
+    if ($venvExit -ne 0) {
+        Write-Status "ERROR: uv venv failed with exit code $venvExit" "ERROR"
+        exit 1
     }
+    Write-Status "Created .venv at $VenvPath" "SUCCESS"
 } else {
-    Write-Status "  .venv already exists, skipping creation" "INFO"
+    Write-Status ".venv already exists, skipping creation" "INFO"
 }
 
-# Verify Python version
-if (Test-Path $VenvPython) {
-    $pyVersion = (& $VenvPython --version 2>$null).Trim()
-    Write-Status "  Python in venv: $pyVersion" "CYAN"
-    if ($pyVersion -notmatch "3\.12") {
-        Write-Status "  [!] WARNING: Expected Python 3.12, got: $pyVersion" "WARN"
-        Write-Status "  [!] Recommendation: remove $VenvPath and re-run installer." "WARN"
-    }
-} else {
-    Write-Status "ERROR: Virtual environment python not found at $VenvPython" "ERROR"
+$pyVersion = (& $VenvPython --version 2>$null).Trim()
+Write-Status "Project Python: $pyVersion" "CYAN"
+Write-Status "Python path   : $VenvPython" "CYAN"
+if ($pyVersion -notmatch "3\.12") {
+    Write-Status "ERROR: Project venv is not Python 3.12: $pyVersion" "ERROR"
+    Write-Status "Remove $VenvPath and re-run installer." "ERROR"
     exit 1
 }
 
-# Step 5: Install dependencies from requirements.txt
-Write-Status "[5/5] Installing dependencies..." "INFO"
-if (Test-Path $ReqFile) {
-    Push-Location $ProjectRoot
-    try {
-        $installResult = uv pip install --python $VenvPython -r $ReqFile --quiet 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Status "  [!] uv pip install completed with warnings/errors:" "WARN"
-            Write-Status "  $installResult" "WARN"
-        } else {
-            Write-Status "  [+] Dependencies installed successfully" "SUCCESS"
-        }
-    } finally {
-        Pop-Location
-    }
-} else {
-    Write-Status "  [!] requirements.txt not found at $ReqFile" "WARN"
+# Stage 5: dependencies
+Write-Step "Installing project dependencies" 5 6
+if (-not (Test-Path $ReqFile)) {
+    Write-Status "ERROR: requirements.txt not found: $ReqFile" "ERROR"
+    exit 1
 }
+$pipArgs = @(
+    "pip", "install",
+    "--python", $VenvPython,
+    "--requirements", $ReqFile,
+    "--no-config"
+)
+$pipExit = Invoke-Uv -ArgumentList $pipArgs
+if ($pipExit -ne 0) {
+    Write-Status "ERROR: uv pip install failed with exit code $pipExit" "ERROR"
+    exit 1
+}
+Write-Status "Dependencies installed successfully" "SUCCESS"
 
-# Verify critical imports
-Write-Status "Verifying critical imports..." "INFO"
-$CriticalModules = @("duckdb", "aiohttp", "cryptography", "prompt_toolkit", "rich", "json5")
+# Stage 6: verification
+Write-Step "Verifying portable runtime imports" 6 6
+$CriticalModules = @(
+    "duckdb",
+    "aiohttp",
+    "cryptography",
+    "Crypto.Hash.MD4",
+    "prompt_toolkit",
+    "rich",
+    "json5"
+)
 $AllImportsOK = $true
 foreach ($mod in $CriticalModules) {
-    $checkResult = & $VenvPython -c "import $mod" 2>$null
-    if ($LASTEXITCODE -eq 0) {
-        Write-Status "  [+] $mod" "SUCCESS"
+    $checkExit = Invoke-VenvPython -ArgumentList @("-c", "import $mod")
+    if ($checkExit -eq 0) {
+        Write-Status "[+] $mod" "SUCCESS"
     } else {
-        Write-Status "  [!] $mod NOT FOUND" "ERROR"
+        Write-Status "[!] $mod NOT FOUND" "ERROR"
         $AllImportsOK = $false
     }
 }
 
-Write-Status "" "INFO"
+# Optional convenience shim for interactive use.
+$PythonShim = Join-Path $BinDir "amuled-python.cmd"
+$shimText = "@echo off`r`n`"$(($VenvPython).Replace('/','\'))`" %*`r`n"
+[System.IO.File]::WriteAllText($PythonShim, $shimText, [System.Text.UTF8Encoding]::new($false))
+
+Write-Host ""
 if ($AllImportsOK) {
     Write-Status "========== Installation Complete ==========" "SUCCESS"
-    Write-Status "  Config:  $ConfigFile" "INFO"
-    Write-Status "  Venv:    $VenvPath" "INFO"
-    Write-Status "  Log:     $LogFile" "INFO"
-    Write-Status "Next: Run AmuleD_Run.ps1 to start the client." "INFO"
+    Write-Status "Config : $ConfigFile" "INFO"
+    Write-Status "Venv   : $VenvPath" "INFO"
+    Write-Status "Python : $VenvPython" "INFO"
+    Write-Status "Shim   : $PythonShim" "INFO"
+    Write-Status "Log    : $LogFile" "INFO"
+    Write-Status "Next   : Run .\AmuleD_Run.ps1" "INFO"
+    exit 0
 } else {
     Write-Status "========== Installation Completed with Warnings ==========" "WARN"
+    exit 2
 }
-
-exit 0

@@ -1,6 +1,6 @@
 # AmuleD_v2 Roadmap
 
-Дата фиксации: 2026-09-22. Текущий статус: M0 и M1 завершены; активная разработка переходит к M2/M3. Этот документ является исходной продуктово-технической спецификацией для полностью чистого Python-клиента ED2K/Kademlia в папке [AmuleD_v2](file:///O:/Work/Coding/Paradise_Lost_KAD_SA/AmuleD_v2). Скрипты [AmuleD_install.ps1](file:///O:/Work/Coding/Paradise_Lost_KAD_SA/AmuleD_v2/AmuleD_install.ps1), [AmuleD_Run.ps1](file:///O:/Work/Coding/Paradise_Lost_KAD_SA/AmuleD_v2/AmuleD_Run.ps1) и [requirements.txt](file:///O:/Work/Coding/Paradise_Lost_KAD_SA/AmuleD_v2/requirements.txt) сохраняют авторскую структуру приветствия/меню и теперь реализуют portable uv runtime для AmuleD_v2.
+Дата фиксации: 2026-09-22. Текущий статус: M0–M2 завершены. В M3 готовы MD4/ED2K hashing, binary codec, tags, packet framing и zlib; SHA1/AICH остаётся незавершённым. В M4 выполнен реальный импорт и DuckDB persistence `server.met`/`staticservers.dat`; TCP login ещё не реализован. В M7 выполнены импорт, ED2K hashing pipeline и DuckDB persistence shared metadata; AICH и KAD publish остаются. Runtime развёрнут через `AmuleD_v2\AmuleD_install.ps1`: Python 3.12.12 в `AmuleD_v2\.venv`, локальный uv в `AmuleD_v2\bin\uv.exe`, зависимости и кэши изолированы внутри проекта. Полный тестовый набор — 95 passed. Реальные v1 данные сохранены в `AmuleD_v2\db\amuled.db`: 20 серверов, 1 статический сервер, 494 shared files и 246 shared directories. Этот документ является исходной продуктово-технической спецификацией для полностью чистого Python-клиента ED2K/Kademlia в папке [AmuleD_v2](file:///O:/Work/Coding/Paradise_Lost_KAD_SA/AmuleD_v2). Скрипты [AmuleD_install.ps1](file:///O:/Work/Coding/Paradise_Lost_KAD_SA/AmuleD_v2/AmuleD_install.ps1), [AmuleD_Run.ps1](file:///O:/Work/Coding/Paradise_Lost_KAD_SA/AmuleD_v2/AmuleD_Run.ps1) и [requirements.txt](file:///O:/Work/Coding/Paradise_Lost_KAD_SA/AmuleD_v2/requirements.txt) сохраняют авторскую структуру приветствия/меню и реализуют полностью портативный Trellis2-style uv runtime.
 
 ## 1. Фактическое состояние проекта
 
@@ -74,21 +74,21 @@ Clean-room правило: исходники изучаются и исполь
 
 Критерий выхода: повторный запуск installer не ломает конфиг, runner запускает `python -m amuled_v2 --help`, все runtime-каталоги создаются внутри [AmuleD_v2](file:///O:/Work/Coding/Paradise_Lost_KAD_SA/AmuleD_v2).
 
-### M2 — config, logging, DuckDB, CLI router — IN PROGRESS
+### M2 — config, logging, DuckDB, CLI router — DONE
 
 Реализовать загрузку JSONC, schema validation, portable defaults, external path resolution, structured logging, DuckDB schema, миграции БД, CLI router, JSON output и базовый daemon lifecycle.
 
 Критерий выхода: команды `status`, `config show`, `config set`, `daemon start`, `daemon stop` и `--json` работают без сети.
 
-### M3 — hash и binary codec layer
+### M3 — hash и binary codec layer — IN PROGRESS
 
 Реализовать MD4, ED2K file hash, SHA1/AICH interfaces, little-endian binary IO, packet framing, tag system и zlib packed packets. Источники поведения: [md4.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/utils/aLinkCreator/src/md4.cpp), [ed2khash.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/utils/aLinkCreator/src/ed2khash.cpp), [Packet.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/Packet.cpp), [MemFile.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/MemFile.cpp), [SafeFile.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/SafeFile.cpp) и [Tag.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/Tag.cpp).
 
 Критерий выхода: unit tests покрывают hash vectors, packet encode/decode, tag encode/decode и packed payload roundtrip.
 
-### M4 — ED2K server engine
+### M4 — ED2K server engine — IN PROGRESS
 
-Реализовать импорт [server.met](file:///O:/Work/Coding/Paradise_Lost_KAD_SA/amule-daemon-config/server.met), server list, static servers, TCP login, low/high ID handling, server status, search, source request, reconnect и server statistics. Основные источники: [Client2Server\TCP.h](file:///O:/Work/Coding/aMule-2.3.3/src/include/protocol/ed2k/Client2Server/TCP.h), [Client2Server\UDP.h](file:///O:/Work/Coding/aMule-2.3.3/src/include/protocol/ed2k/Client2Server/UDP.h), [ServerList.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/ServerList.cpp) и [SearchList.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/SearchList.cpp).
+Импорт реальных v1 ресурсов `server.met` и `staticservers.dat` уже реализован и проверен: 20 серверов и 1 статический сервер. Далее реализуются TCP login, low/high ID handling, server status, search, source request, reconnect и server statistics. Основные источники: [Client2Server\TCP.h](file:///O:/Work/Coding/aMule-2.3.3/src/include/protocol/ed2k/Client2Server/TCP.h), [Client2Server\UDP.h](file:///O:/Work/Coding/aMule-2.3.3/src/include/protocol/ed2k/Client2Server/UDP.h), [ServerList.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/ServerList.cpp) и [SearchList.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/SearchList.cpp).
 
 Критерий выхода: ED2K server login/search работает в loopback simulator, затем проверяется на живом сервере после явного разрешения.
 
@@ -104,9 +104,9 @@ Clean-room правило: исходники изучаются и исполь
 
 Критерий выхода: одинаковый результатный формат используется для KAD, ED2K, CLI и JSON.
 
-### M7 — sharing и hashing pipeline
+### M7 — sharing и hashing pipeline — IN PROGRESS
 
-Реализовать сканирование shared dirs, импорт [shared_files.json](file:///O:/Work/Coding/Paradise_Lost_KAD_SA/shared_files.json), импорт [shareddir.dat](file:///O:/Work/Coding/Paradise_Lost_KAD_SA/amule-daemon-config/shareddir.dat), ED2K hashing, AICH pipeline, known-file index, priorities, simple categories и generation of ED2K links. Основные источники: [SharedFileList.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/SharedFileList.cpp), [KnownFile.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/KnownFile.cpp), [KnownFileList.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/KnownFileList.cpp) и [ED2KLink.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/ED2KLink.cpp).
+Импорт реальных v1 `shared_files.json` и `shareddir.dat` реализован и проверен: 494 файлов и 246 каталогов. ED2K hashing pipeline и link generation реализованы на synthetic-тестах. Далее реализуются AICH pipeline, known-file index в DuckDB, priorities persistence, category assignment и KAD publish readiness. Основные источники: [SharedFileList.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/SharedFileList.cpp), [KnownFile.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/KnownFile.cpp), [KnownFileList.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/KnownFileList.cpp) и [ED2KLink.cpp](file:///O:/Work/Coding/aMule-2.3.3/src/ED2KLink.cpp).
 
 Критерий выхода: shared files отображаются в CLI, для них генерируются ED2K-ссылки, неизменённые файлы не перехэшируются повторно.
 
@@ -172,4 +172,4 @@ Live-network tests включаются только после стабилиз
 
 ## 10. Немедленный следующий шаг
 
-Следующий рабочий шаг после текущего skeleton — M2/M3: довести config/logging/DuckDB/CLI router до полного offline control plane и начать hash/binary codec layer для ED2K/KAD.
+Следующий рабочий шаг — завершить SHA1/AICH-слой M3, затем реализовать ED2K TCP login, server status и серверный search через codec/state слои. После этого добавляются Kad bootstrap и unified search.
