@@ -33,6 +33,16 @@ appearance_F*
 *projection.json
 .current_appearance 
 
+# === Local private/generated AmuleD state ===
+shared_files.json
+shareddir.dat
+amule-daemon-config/shareddir.dat
+AmuleD_v2/assets/v1/shared_files.json
+AmuleD_v2/assets/v1/shareddir.dat
+AmuleD_v2/config/amuled.jsonc
+AmuleD_v2/docs/roadmap.md
+AmuleD_v2/AGENTS.md
+
 # === IDE & OS ===
 .vscode/
 .idea/
