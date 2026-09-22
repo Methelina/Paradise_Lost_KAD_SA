@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "amuled-v2"
-version = "0.3.2"
+version = "0.4.0"
 description = "Pure Python ED2K/Kademlia client (clean-room reimplementation)."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -30,6 +30,7 @@ dependencies = [
     "rich>=13.7",
     "json5>=0.9",
     "pytest>=8.0",
+    "pytest-asyncio>=0.23",
 ]
 
 [project.optional-dependencies]
@@ -40,6 +41,9 @@ dev = [
 
 [project.scripts]
 amuled = "amuled_v2.cli:main"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
 
 [tool.setuptools]
 package-dir = { "" = "src" }

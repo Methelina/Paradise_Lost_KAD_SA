@@ -10,6 +10,7 @@
 # Patch Notes v0.1.1 (Soror L.'.L'.):
 #   [+] Adds PyCryptodome for the required MD4 implementation (Crypto.Hash.MD4).
 #   [+] Adds pytest to the project-local test runtime.
+#   [+] Adds pytest-asyncio for protocol session integration tests.
 
 # Patch Notes v0.1.0 (Soror L.'.L'.):
 #   [+] Initial clean-room requirements for AmuleD_v2 (Python ED2K/Kademlia client).
@@ -30,3 +31,4 @@ json5>=0.9.25
 
 # === Development / Test Runtime ===
 pytest>=8.0.0
+pytest-asyncio>=0.23.0
