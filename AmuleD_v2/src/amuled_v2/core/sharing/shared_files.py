@@ -7,11 +7,13 @@ hashes native shared files with the ED2K hash layer, and emits compatible
 ``ed2k://|file|...`` links.
 
 src/amuled_v2/core/sharing/shared_files.py
-Version:     0.1.0
+Version:     0.1.1
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
 
-Patch Notes v0.1.0 (Soror L.'.L'.):
+Patch Notes v0.1.1 (Soror L.'.L'.):
+  [+] Added tagged SHARE diagnostics for metadata imports, directory scans,
+      per-file hashing, and final scan counts.
   [+] Added SharedFile metadata model and strict ED2K hash validation.
   [+] Added v1 shared_files.json and shareddir.dat importers.
   [+] Added deterministic directory scanning and ED2K hashing pipeline.
@@ -28,6 +30,9 @@ from pathlib import Path
 from typing import Iterable
 
 from amuled_v2.core.hashes import Ed2kHashResult, ed2k_hash_file
+from amuled_v2.logging_setup import LogTags, get_tagged_logger
+
+log = get_tagged_logger(LogTags.SHARE, "core.sharing.shared_files")
 
 __all__ = [
     "SharingError",
@@ -130,6 +135,7 @@ def load_shared_files_json(path: str | Path) -> list[SharedFile]:
     try:
         payload = json.loads(source.read_text(encoding="utf-8-sig"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        log.error(f"Cannot read shared_files.json: {path} ({exc})")
         raise SharingError(f"cannot read shared_files.json: {exc}") from exc
     if not isinstance(payload, list):
         raise SharingError("shared_files.json must contain a JSON array")
@@ -156,6 +162,7 @@ def load_shared_files_json(path: str | Path) -> list[SharedFile]:
                 imported=True,
             )
         )
+    log.info(f"Loaded shared metadata: path={path}, files={len(imported)}")
     return imported
 
 
@@ -165,6 +172,7 @@ def load_shareddir_dat(path: str | Path) -> list[Path]:
     try:
         lines = source.read_text(encoding="utf-8-sig").splitlines()
     except (OSError, UnicodeError) as exc:
+        log.error(f"Cannot read shareddir.dat: {path} ({exc})")
         raise SharingError(f"cannot read shareddir.dat: {exc}") from exc
     directories: list[Path] = []
     seen: set[str] = set()
@@ -177,6 +185,7 @@ def load_shareddir_dat(path: str | Path) -> list[Path]:
             continue
         seen.add(resolved.lower())
         directories.append(Path(resolved))
+    log.info(f"Loaded shared directories: path={path}, directories={len(directories)}")
     return directories
 
 
@@ -195,6 +204,7 @@ def scan_shared_directory(
         if not path.is_file():
             continue
         result = ed2k_hash_file(str(path))
+        log.debug(f"Hashed shared file: path={path}, size={result.file_size}")
         shared.append(
             SharedFile(
                 file_hash=result.file_hash,
@@ -210,10 +220,13 @@ def scan_shared_directory(
 def scan_shared_directories(directories: Iterable[str | Path]) -> list[SharedFile]:
     """Scan multiple roots and deduplicate files by ED2K hash and size."""
     result: dict[tuple[bytes, int], SharedFile] = {}
-    for directory in directories:
+    roots = [Path(directory) for directory in directories]
+    for directory in roots:
         for item in scan_shared_directory(directory):
             result.setdefault((item.file_hash, item.size), item)
-    return list(result.values())
+    files = list(result.values())
+    log.info(f"Scan completed: roots={len(roots)}, files={len(files)}")
+    return files
 
 
 def generate_ed2k_link(file: SharedFile, *, include_part_hashes: bool = False) -> str:

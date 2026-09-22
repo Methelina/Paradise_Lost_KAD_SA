@@ -7,15 +7,17 @@ normalizes null paths to portable runtime directories, and CLI helpers
 inference.
 
 src/amuled_v2/config.py
-Version:     0.3.1
+Version:     0.3.2
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
+
+Patch Notes v0.3.2 (Soror L.'.L'.):
+  [+] Added tagged CONFIG diagnostics for load, create, merge, and save events.
+  [+] Added a default JSONL diagnostics file and portable log-path resolution.
 
 Patch Notes v0.3.1 (Soror L.'.L'.):
   [*] Added recursive defaults merge so installer-generated configs remain
       compatible with runtime-only keys added in newer versions.
-
-Patch Notes v0.3.1 (Soror L.'.L'.):
   [+] Added bundled baseline resource defaults so GitHub checkouts run without
       any external donor directory.
 
@@ -28,16 +30,22 @@ Patch Notes v0.1.0 (Soror L.'.L'.):
 from __future__ import annotations
 
 import copy
+from pathlib import Path
 from typing import Any
 
 from amuled_v2.jsonc import dump_json, load_jsonc_file
+from amuled_v2.logging_setup import LogTags, get_tagged_logger
 from amuled_v2.paths import (
     CONFIG_FILE,
     INCOMING_DIR,
+    LOGS_DIR,
+    PROJECT_ROOT,
     SHARED_DIR,
     TEMP_DIR,
     ensure_runtime_dirs,
 )
+
+log = get_tagged_logger(LogTags.CONFIG, "config")
 
 # ------------------------------------------------------------------
 # Defaults
@@ -90,7 +98,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     },
     "logging": {
         "level": "INFO",
-        "file": None,
+        "file": "logs/amuled.jsonl",
     },
 }
 
@@ -120,6 +128,15 @@ def _normalize_paths(cfg: dict[str, Any]) -> dict[str, Any]:
     if paths.get("shared") is None:
         paths["shared"] = str(SHARED_DIR)
     cfg["paths"] = paths
+
+    logging_cfg = cfg.setdefault("logging", {})
+    logging_file = logging_cfg.get("file")
+    if logging_file and not Path(str(logging_file)).is_absolute():
+        logging_path = Path(str(logging_file))
+        if logging_path.parts and logging_path.parts[0].lower() == "logs":
+            logging_cfg["file"] = str(PROJECT_ROOT / logging_path)
+        else:
+            logging_cfg["file"] = str(LOGS_DIR / logging_path)
     return cfg
 
 
@@ -136,16 +153,20 @@ def load_config(save_if_missing: bool = True) -> dict[str, Any]:
     """
     ensure_runtime_dirs()
     if CONFIG_FILE.exists():
+        log.debug(f"Loading config: {CONFIG_FILE}")
         user_cfg = load_jsonc_file(CONFIG_FILE)
         if not isinstance(user_cfg, dict):
+            log.error(f"Configuration root is not a JSON object: {CONFIG_FILE}")
             raise ValueError(f"configuration root must be a JSON object: {CONFIG_FILE}")
         cfg = _deep_merge(DEFAULT_CONFIG, user_cfg)
         _normalize_paths(cfg)
+        log.debug("Config loaded and merged with defaults")
         return cfg
     # --- first run: write defaults ---
     cfg = copy.deepcopy(DEFAULT_CONFIG)
     _normalize_paths(cfg)
     if save_if_missing:
+        log.info(f"Creating default config: {CONFIG_FILE}")
         save_config(cfg)
     return cfg
 
@@ -154,6 +175,7 @@ def save_config(cfg: dict[str, Any]) -> None:
     """Write *cfg* to the config file as JSONC."""
     ensure_runtime_dirs()
     dump_json(cfg, CONFIG_FILE)
+    log.debug(f"Config saved: {CONFIG_FILE}")
 
 
 # ------------------------------------------------------------------

@@ -6,11 +6,12 @@ followed by a UInt32 server count.  Each server record contains a UInt32 IPv4
 address, UInt16 TCP port, UInt32 tag count, and new-format ED2K tags.
 
 src/amuled_v2/core/ed2k/server_met.py
-Version:     0.1.0
+Version:     0.1.1
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
 
-Patch Notes v0.1.0 (Soror L.'.L'.):
+Patch Notes v0.1.1 (Soror L.'.L'.):
+  [+] Added tagged SERVER diagnostics for list loading and import counts.
   [+] Added ServerRecord, ServerMet parsing, address formatting, and tag access.
   [+] Added staticservers.dat parsing and deterministic list merge behavior.
   [+] Added bounded parsing with explicit ServerMetError diagnostics.
@@ -25,6 +26,9 @@ from typing import Iterable, Optional
 
 from amuled_v2.core.codec.binary import BinaryReader, CodecError
 from amuled_v2.core.codec.tags import Ed2kTag, TagError, read_new_tag
+from amuled_v2.logging_setup import LogTags, get_tagged_logger
+
+log = get_tagged_logger(LogTags.SERVER, "core.ed2k.server_met")
 
 __all__ = [
     "SERVER_MET_VERSION",
@@ -163,8 +167,11 @@ def load_server_met(path: str | Path) -> list[ServerRecord]:
     try:
         data = Path(path).read_bytes()
     except OSError as exc:
+        log.error(f"Cannot read server.met: {path} ({exc})")
         raise ServerMetError(f"cannot read server.met: {exc}") from exc
-    return parse_server_met(data)
+    records = parse_server_met(data)
+    log.info(f"Loaded server.met: path={path}, servers={len(records)}")
+    return records
 
 
 @dataclass(frozen=True)
@@ -184,6 +191,7 @@ def load_static_servers(path: str | Path) -> list[StaticServer]:
     try:
         lines = Path(path).read_text(encoding="utf-8-sig").splitlines()
     except (OSError, UnicodeError) as exc:
+        log.error(f"Cannot read static server list: {path} ({exc})")
         raise ServerMetError(f"cannot read static server list: {exc}") from exc
 
     for line_number, raw_line in enumerate(lines, 1):
@@ -215,6 +223,7 @@ def load_static_servers(path: str | Path) -> list[StaticServer]:
                 static=True,
             )
         )
+    log.info(f"Loaded static server list: path={path}, servers={len(result)}")
     return result
 
 

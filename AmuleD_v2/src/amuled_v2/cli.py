@@ -12,9 +12,13 @@ Dependencies (duckdb, rich) are optional at runtime; ``--help`` works without
 them installed.  Network/protocol modules are not imported.
 
 src/amuled_v2/cli.py
-Version:     0.3.0
+Version:     0.3.2
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
+
+Patch Notes v0.3.2 (Soror L.'.L'.):
+  [+] Added tagged CLI command lifecycle diagnostics and error reporting.
+  [*] Logging now initializes from the configured console level and JSONL file.
 
 Patch Notes v0.3.0 (Soror L.'.L'.):
   [+] Added one-shot v1 import commands for server lists and shared metadata.
@@ -35,7 +39,9 @@ from typing import Sequence
 from amuled_v2 import __version__
 from amuled_v2.config import config_set, config_show, load_config
 from amuled_v2.daemon import start_daemon, stop_daemon
-from amuled_v2.logging_setup import configure_logging
+from amuled_v2.logging_setup import LogTags, configure_logging, get_tagged_logger
+
+log = get_tagged_logger(LogTags.CLI, "cli")
 from amuled_v2.state import get_state
 
 
@@ -58,6 +64,7 @@ def _print_text(header: str, lines: list[str]) -> None:
 # ------------------------------------------------------------------
 
 def _cmd_status(args: argparse.Namespace) -> int:
+    log.debug(f"Command started: name=status, json={args.json}")
     cfg = load_config(save_if_missing=True)
     st = get_state()
     st.connect()
@@ -88,6 +95,7 @@ def _cmd_status(args: argparse.Namespace) -> int:
             f"ed2k       : {result['network']['enable_ed2k']}",
             f"kad        : {result['network']['enable_kad']}",
         ])
+    log.info("Status command completed")
     return 0
 
 
@@ -102,6 +110,7 @@ def _cmd_config_set(args: argparse.Namespace) -> int:
 def _cmd_init(args: argparse.Namespace) -> int:
     from amuled_v2.paths import ensure_runtime_dirs
 
+    log.debug(f"Command started: name=init, json={args.json}")
     created = ensure_runtime_dirs()
     load_config(save_if_missing=True)
     st = get_state()
@@ -122,10 +131,12 @@ def _cmd_init(args: argparse.Namespace) -> int:
             f"backend      : {result['backend']}",
             f"db_path      : {result['db_path']}",
         ])
+    log.info("Init command completed")
     return 0
 
 
 def _cmd_daemon_start(args: argparse.Namespace) -> int:
+    log.debug(f"Command started: name=daemon-start, json={args.json}")
     code, info = start_daemon()
     result = info.to_dict()
     if args.json:
@@ -139,6 +150,7 @@ def _cmd_daemon_start(args: argparse.Namespace) -> int:
 
 
 def _cmd_daemon_stop(args: argparse.Namespace) -> int:
+    log.debug(f"Command started: name=daemon-stop, json={args.json}")
     code, info = stop_daemon()
     result = info.to_dict()
     if args.json:
@@ -158,6 +170,10 @@ def _cmd_daemon_stop(args: argparse.Namespace) -> int:
 def _cmd_import_servers(args: argparse.Namespace) -> int:
     from amuled_v2.core.ed2k import load_server_met, load_static_servers
 
+    log.debug(
+        f"Command started: name=import-servers, save={args.save}, "
+        f"server_met={args.server_met}, static={args.static}"
+    )
     records = load_server_met(args.server_met)
     static = load_static_servers(args.static) if args.static else []
     saved_servers = 0
@@ -188,6 +204,7 @@ def _cmd_import_servers(args: argparse.Namespace) -> int:
             f"server_met      : {result['server_met']}",
             f"static_list     : {result['staticservers_dat']}",
         ])
+    log.info(f"Server import completed: servers={len(records)}, static={len(static)}")
     return 0
 
 
@@ -197,6 +214,10 @@ def _cmd_import_shared(args: argparse.Namespace) -> int:
         load_shared_files_json,
     )
 
+    log.debug(
+        f"Command started: name=import-shared, save={args.save}, "
+        f"shared_json={args.shared_json}, shareddir={args.shareddir}"
+    )
     files = load_shared_files_json(args.shared_json)
     directories = load_shareddir_dat(args.shareddir) if args.shareddir else []
     saved_files = 0
@@ -227,6 +248,7 @@ def _cmd_import_shared(args: argparse.Namespace) -> int:
             f"shared_json        : {result['shared_files_json']}",
             f"shared_dirs        : {result['shareddir_dat']}",
         ])
+    log.info(f"Shared import completed: files={len(files)}, directories={len(directories)}")
     return 0
 
 
@@ -349,16 +371,28 @@ def main(argv: Sequence[str] | None = None) -> int:
         parser.print_help()
         return 0
 
+    # Configure a console logger first so even config-loading diagnostics are tagged.
+    configure_logging("INFO")
+
     # Configure logging lazily (optional deps already guarded).
     cfg = load_config(save_if_missing=True)
-    log_level = cfg.get("logging", {}).get("level", "INFO")
-    configure_logging(log_level)
+    configured_level = cfg.get("logging", {}).get("level", "INFO")
+    configured_file = cfg.get("logging", {}).get("file")
+    configure_logging(configured_level, log_file=configured_file)
+    log.debug(
+        f"Logging configured: level={configured_level}, "
+        f"file={configured_file or 'console-only'}"
+    )
 
     func = getattr(args, "func", None)
     if func is None:
         parser.print_help()
         return 0
-    return func(args)
+    try:
+        return func(args)
+    except Exception as exc:
+        log.exception(f"Command failed: type={type(exc).__name__}, error={exc}")
+        raise
 
 
 if __name__ == "__main__":

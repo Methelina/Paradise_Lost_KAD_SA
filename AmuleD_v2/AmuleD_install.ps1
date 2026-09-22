@@ -41,6 +41,7 @@
 #   [*] Repointed nodes, servers, IP filters, shared metadata, and GeoIP to the
 #       bundled project assets so a GitHub checkout is self-contained.
 #   [*] Removed the donor cryptkey path from the default template.
+#   [+] Added tagged JSONL diagnostics to the default logging configuration.
 
 # v0.3.0 (2026-09-22 by Soror L.'.L'.)
 #   [+] Full Trellis2-style portable isolation block: local uv, local managed
@@ -187,7 +188,7 @@ function Write-Status {
         [string]$Level = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $line = "[$timestamp] [$Level] $Message"
+    $line = "[$timestamp] [INSTALL] [$Level] $Message"
     $color = switch ($Level) {
         "ERROR"   { "Red" }
         "WARN"    { "Yellow" }
@@ -195,7 +196,7 @@ function Write-Status {
         "CYAN"    { "Cyan" }
         default   { "White" }
     }
-    Write-Host "[$Level] $Message" -ForegroundColor $color
+    Write-Host "[$timestamp] [INSTALL] [$Level] $Message" -ForegroundColor $color
     if (Test-Path $LogsDir) {
         Add-Content -Path $LogFile -Value $line -Encoding UTF8
     }
@@ -262,6 +263,12 @@ function Get-DefaultConfig {
   "daemon": {
     "pid_file": "db/amuled.pid",
     "log_level": "INFO"
+  },
+
+  // Diagnostics logging
+  "logging": {
+    "level": "INFO",
+    "file": "logs/amuled.jsonl"
   },
 
   // Network configuration

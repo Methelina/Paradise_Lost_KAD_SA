@@ -82,9 +82,9 @@ $LogsDir      = Join-Path $ProjectRoot "logs"
 # ==========================================================
 if (Test-Path $LocalUv) {
     $env:PATH = "$BinDir;$env:PATH"
-    Write-Host "[INFO] Local uv found in bin and added to PATH." -ForegroundColor Green
+    Write-Host "[RUNNER] [INFO] Local uv found in bin and added to PATH." -ForegroundColor Green
 } else {
-    Write-Host "[WARN] Local uv not found in bin. Runtime can start, but reinstall/update flows may fail." -ForegroundColor Yellow
+    Write-Host "[RUNNER] [WARN] Local uv not found in bin. Runtime can start, but reinstall/update flows may fail." -ForegroundColor Yellow
 }
 
 # ==========================================================
@@ -122,8 +122,8 @@ Remove-Item Env:UV_NO_MANAGED_PYTHON -ErrorAction SilentlyContinue
 # Pre-flight validation
 # ==========================================================
 if (-not (Test-Path $VenvPython)) {
-    Write-Host "[ERROR] Project Python not found: $VenvPython" -ForegroundColor Red
-    Write-Host "[ERROR] Run .\AmuleD_install.ps1 first. Never use a system Python." -ForegroundColor Red
+    Write-Host "[RUNNER] [ERROR] Project Python not found: $VenvPython" -ForegroundColor Red
+    Write-Host "[RUNNER] [ERROR] Run .\AmuleD_install.ps1 first. Never use a system Python." -ForegroundColor Red
     if (-not $NoPause) {
         Write-Host "Press any key to exit..." -ForegroundColor Gray
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -132,8 +132,8 @@ if (-not (Test-Path $VenvPython)) {
 }
 
 if (-not (Test-Path $ConfigFile)) {
-    Write-Host "[ERROR] Config not found: $ConfigFile" -ForegroundColor Red
-    Write-Host "[ERROR] Run .\AmuleD_install.ps1 first." -ForegroundColor Red
+    Write-Host "[RUNNER] [ERROR] Config not found: $ConfigFile" -ForegroundColor Red
+    Write-Host "[RUNNER] [ERROR] Run .\AmuleD_install.ps1 first." -ForegroundColor Red
     if (-not $NoPause) {
         Write-Host "Press any key to exit..." -ForegroundColor Gray
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -143,8 +143,8 @@ if (-not (Test-Path $ConfigFile)) {
 
 $pyVersion = (& $VenvPython --version 2>$null).Trim()
 if ($pyVersion -notmatch "3\.12") {
-    Write-Host "[ERROR] Unexpected Python version: $pyVersion" -ForegroundColor Red
-    Write-Host "[ERROR] Expected Python 3.12 from AmuleD_v2\.venv only." -ForegroundColor Red
+    Write-Host "[RUNNER] [ERROR] Unexpected Python version: $pyVersion" -ForegroundColor Red
+    Write-Host "[RUNNER] [ERROR] Expected Python 3.12 from AmuleD_v2\.venv only." -ForegroundColor Red
     if (-not $NoPause) {
         Write-Host "Press any key to exit..." -ForegroundColor Gray
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -152,9 +152,9 @@ if ($pyVersion -notmatch "3\.12") {
     exit 1
 }
 
-Write-Host "[INFO] Python : $pyVersion" -ForegroundColor Cyan
-Write-Host "[INFO] Path   : $VenvPython" -ForegroundColor Cyan
-Write-Host "[INFO] Root   : $ProjectRoot" -ForegroundColor Cyan
+Write-Host "[RUNNER] [INFO] Python : $pyVersion" -ForegroundColor Cyan
+Write-Host "[RUNNER] [INFO] Path   : $VenvPython" -ForegroundColor Cyan
+Write-Host "[RUNNER] [INFO] Root   : $ProjectRoot" -ForegroundColor Cyan
 
 # ==========================================================
 # Argument preparation
@@ -176,12 +176,12 @@ try {
     & $VenvPython -s -W ignore::FutureWarning -m amuled_v2 @ForwardedArgs
     $exitCode = $LASTEXITCODE
 } catch {
-    Write-Host "[ERROR] Launcher exception: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[RUNNER] [ERROR] Launcher exception: $($_.Exception.Message)" -ForegroundColor Red
     $exitCode = 1
 }
 
 if ($exitCode -ne 0) {
-    Write-Host "[ERROR] AmuleD_v2 exited with code $exitCode" -ForegroundColor Red
+    Write-Host "[RUNNER] [ERROR] AmuleD_v2 exited with code $exitCode" -ForegroundColor Red
 }
 
 # ==========================================================
@@ -193,3 +193,4 @@ if (-not $NoPause) {
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 exit $exitCode
+

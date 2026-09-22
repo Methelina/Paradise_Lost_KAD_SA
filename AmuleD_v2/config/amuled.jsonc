@@ -15,7 +15,7 @@
     "nodes_dat": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\assets\\v1\\nodes.dat"
   },
   "logging": {
-    "file": null,
+    "file": "logs/amuled.jsonl",
     "level": "INFO"
   },
   "network": {
@@ -25,9 +25,9 @@
     "enable_kad": true
   },
   "paths": {
-    "incoming": null,
-    "shared": null,
-    "temp": null
+    "incoming": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\incoming",
+    "shared": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\shared",
+    "temp": "O:\\Work\\Coding\\Paradise_Lost_KAD_SA\\AmuleD_v2\\temp"
   },
   "proxy": {
     "enabled": false,

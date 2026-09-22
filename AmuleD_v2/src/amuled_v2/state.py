@@ -5,9 +5,13 @@ static servers, shared-file metadata, and shared directories.  A small JSON
 store remains available only as a bootstrap fallback when DuckDB is absent.
 
 src/amuled_v2/state.py
-Version:     0.3.1
+Version:     0.3.2
 Author:      Soror L.'.L.'.
 Updated:     2026-09-22
+
+Patch Notes v0.3.2 (Soror L.'.L'.):
+  [+] Added tagged STATE diagnostics for backend connections, migrations, and
+      repository save counts.
 
 Patch Notes v0.3.1 (Soror L.'.L'.):
   [+] Added schema migration 2 for imported servers, static servers, shared
@@ -24,7 +28,10 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, Any, Iterable
 
+from amuled_v2.logging_setup import LogTags, get_tagged_logger
 from amuled_v2.paths import DB_FILE, STATE_JSON, ensure_runtime_dirs
+
+log = get_tagged_logger(LogTags.STATE, "state")
 
 if TYPE_CHECKING:
     from amuled_v2.core.ed2k import ServerRecord, StaticServer
@@ -110,11 +117,15 @@ def _migrate_v2(con: Any) -> None:
 
 def _init_duckdb(con: Any) -> None:
     """Apply all pending schema migrations."""
+    log.debug("Initializing DuckDB schema")
     _migrate_v1(con)
     row = con.execute("SELECT MAX(version) FROM schema_migrations").fetchone()
     current = row[0] if row and row[0] is not None else 0
     if current < 2:
         _migrate_v2(con)
+        log.info("DuckDB schema migrated to version 2")
+    else:
+        log.debug("DuckDB schema is current")
 
 
 # ------------------------------------------------------------------
@@ -159,9 +170,11 @@ class StateBackend:
             return
         ensure_runtime_dirs()
         if _HAS_DUCKDB:
+            log.debug(f"Connecting DuckDB state: {DB_FILE}")
             self._con = duckdb.connect(str(DB_FILE))
             _init_duckdb(self._con)
         else:
+            log.warning("DuckDB unavailable; using JSON bootstrap fallback")
             self._con = _json_get_store()
 
     def _require_duckdb(self) -> Any:
@@ -222,6 +235,7 @@ class StateBackend:
                 ),
             )
             count += 1
+        log.info(f"Saved servers to state: {count}")
         return count
 
     def save_static_servers(self, records: Iterable["StaticServer"]) -> int:
@@ -237,6 +251,7 @@ class StateBackend:
                 (record.host, record.port, record.name, record.priority),
             )
             count += 1
+        log.info(f"Saved static servers to state: {count}")
         return count
 
     def save_shared_files(self, records: Iterable["SharedFile"]) -> int:
@@ -259,6 +274,7 @@ class StateBackend:
                 ),
             )
             count += 1
+        log.info(f"Saved shared files to state: {count}")
         return count
 
     def save_shared_directories(self, directories: Iterable[str]) -> int:
@@ -270,6 +286,7 @@ class StateBackend:
                 (str(directory),),
             )
             count += 1
+        log.info(f"Saved shared directories to state: {count}")
         return count
 
     def close(self) -> None:
